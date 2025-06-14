@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Building2, RefreshCw, AlertTriangle, CheckCircle } from "lucide-react"
 
 export function Dashboard() {
-  const { environments, suggestions, loading, error, fetchEnvironments } = useEnvironmentStore()
+  const { environments, loading, error, fetchEnvironments } = useEnvironmentStore()
 
   useEffect(() => {
     fetchEnvironments()

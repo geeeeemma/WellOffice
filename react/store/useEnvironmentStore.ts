@@ -4,14 +4,12 @@ import { apiService } from "@/services/api"
 
 interface EnvironmentStore {
   environments: Environment[]
-  suggestions: Suggestion[]
   historicalData: Record<string, HistoricalData[]>
   loading: boolean
   error: string | null
 
   // Actions
   fetchEnvironments: () => Promise<void>
-  fetchSuggestions: () => Promise<void>
   fetchHistoricalData: (environmentId: string, parameterId: string, hours?: number) => Promise<void>
   refreshEnvironment: (environmentId: string) => Promise<void>
   updateThresholds: (update: ThresholdUpdate) => Promise<void>
@@ -20,7 +18,6 @@ interface EnvironmentStore {
 
 export const useEnvironmentStore = create<EnvironmentStore>((set, get) => ({
   environments: [],
-  suggestions: [],
   historicalData: {},
   loading: false,
   error: null,
@@ -32,15 +29,6 @@ export const useEnvironmentStore = create<EnvironmentStore>((set, get) => ({
       set({ environments, loading: false })
     } catch (error) {
       set({ error: (error as Error).message, loading: false })
-    }
-  },
-
-  fetchSuggestions: async () => {
-    try {
-      const suggestions = await apiService.getSuggestions()
-      set({ suggestions })
-    } catch (error) {
-      set({ error: (error as Error).message })
     }
   },
 
@@ -79,13 +67,11 @@ export const useEnvironmentStore = create<EnvironmentStore>((set, get) => ({
           if (env.id === update.environmentId) {
             return {
               ...env,
-              parameters: {
-                ...env.parameters,
-                [update.parameterId]: {
-                  ...env.parameters[update.parameterId as keyof typeof env.parameters],
-                  thresholds: update.thresholds,
-                },
-              },
+              parameters: env.parameters.map((param) =>
+                param.id === update.parameterId
+                  ? { ...param, thresholds: update.thresholds }
+                  : param
+              ),
             }
           }
           return env
@@ -103,18 +89,20 @@ export const useEnvironmentStore = create<EnvironmentStore>((set, get) => ({
       set((state) => ({
         environments: state.environments.map((env) => {
           if (env.id === update.environmentId) {
-            const parameter = env.parameters[update.parameterId as keyof typeof env.parameters]
             return {
               ...env,
-              parameters: {
-                ...env.parameters,
-                [update.parameterId]: {
-                  ...parameter,
-                  sensors: parameter.sensors.map((sensor) =>
-                    sensor.id === update.sensorId ? { ...sensor, isActive: update.isActive } : sensor,
-                  ),
-                },
-              },
+              parameters: env.parameters.map((param) =>
+                param.id === update.parameterId
+                  ? {
+                      ...param,
+                      sensors: param.sensors.map((sensor) =>
+                        sensor.id === update.sensorId
+                          ? { ...sensor, isActive: update.isActive }
+                          : sensor
+                      ),
+                    }
+                  : param
+              ),
             }
           }
           return env

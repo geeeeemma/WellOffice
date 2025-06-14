@@ -10,5 +10,7 @@ public enum UnitMeasure
     Light,         // lux
     Noise,         // dB
     AirFlow,       // m³/h
+    Occupancy,     // persone/m²
+    AirQuality,    // IAQ (Indoor Air Quality)
     Other
 } 

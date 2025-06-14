@@ -27,6 +27,7 @@ builder.Services.AddScoped<ISensorService, SensorService>();
 builder.Services.AddScoped<ISensorDataService, SensorDataService>();
 builder.Services.AddScoped<IThresholdService, ThresholdService>();
 builder.Services.AddScoped<IRemediationActionService, RemediationActionService>();
+builder.Services.AddScoped<IEnvironmentService, EnvironmentService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

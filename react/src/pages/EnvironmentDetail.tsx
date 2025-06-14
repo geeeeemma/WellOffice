@@ -30,8 +30,8 @@ export function EnvironmentDetail() {
         setEnvironment(env)
 
         // Carica dati storici per tutti i parametri
-        Object.keys(env.parameters).forEach((parameterId) => {
-          fetchHistoricalData(environmentId, parameterId)
+        env.parameters.forEach((parameter) => {
+          fetchHistoricalData(environmentId, parameter.id)
         })
       }
       setLoading(false)
@@ -44,8 +44,8 @@ export function EnvironmentDetail() {
     if (environment) {
       await refreshEnvironment(environment.id)
       // Ricarica anche i dati storici
-      Object.keys(environment.parameters).forEach((parameterId) => {
-        fetchHistoricalData(environmentId, parameterId)
+      environment.parameters.forEach((parameter) => {
+        fetchHistoricalData(environmentId, parameter.id)
       })
     }
   }
@@ -76,11 +76,7 @@ export function EnvironmentDetail() {
     )
   }
 
-  const environmentTypeLabels = {
-    office: "Ufficio",
-    "meeting-room": "Sala Riunioni",
-    "open-space": "Open Space",
-  }
+  // Non più necessario il mapping dei tipi, usiamo direttamente environment.type che ora contiene il nome della stanza
 
   return (
     <div className="min-h-screen">
@@ -100,7 +96,7 @@ export function EnvironmentDetail() {
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground mt-1 text-sm">
                 <span className="flex items-center gap-1 flex-shrink-0">
                   <MapPin className="h-4 w-4" />
-                  {environmentTypeLabels[environment.type]}
+                  {environment.type}
                 </span>
                 <span className="flex items-center gap-1 flex-shrink-0">
                   <Activity className="h-4 w-4" />
@@ -131,7 +127,7 @@ export function EnvironmentDetail() {
         <div>
           <h2 className="text-xl sm:text-2xl font-semibold mb-4">Parametri Attuali</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-            {Object.values(environment.parameters).map((parameter) => (
+            {environment.parameters.map((parameter) => (
               <ParameterCard
                 key={parameter.id}
                 parameter={parameter}
@@ -145,7 +141,7 @@ export function EnvironmentDetail() {
         <div>
           <h2 className="text-xl sm:text-2xl font-semibold mb-4">Andamento Storico</h2>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            {Object.values(environment.parameters).map((parameter) => {
+            {environment.parameters.map((parameter) => {
               const dataKey = `${environmentId}-${parameter.id}`
               const data = historicalData[dataKey] || []
 

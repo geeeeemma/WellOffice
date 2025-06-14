@@ -13,7 +13,7 @@ import { AISuggestions } from "@/components/AISuggestions"
 export function ParameterDetail() {
   const params = useParams()
   const navigate = useNavigate()
-  const { environments, historicalData, suggestions, fetchEnvironments, fetchHistoricalData, fetchSuggestions } =
+  const { environments, historicalData, fetchEnvironments, fetchHistoricalData } =
     useEnvironmentStore()
 
   const [environment, setEnvironment] = useState<Environment | null>(null)
@@ -31,13 +31,10 @@ export function ParameterDetail() {
         await fetchEnvironments()
       }
 
-      // Carica anche i suggerimenti
-      await fetchSuggestions()
-
       const env = environments.find((e) => e.id === environmentId)
       if (env) {
         setEnvironment(env)
-        const param = env.parameters[parameterId as keyof typeof env.parameters]
+        const param = env.parameters.find((p) => p.id === parameterId)
         if (param) {
           setParameter(param)
           await fetchHistoricalData(environmentId, parameterId, 168) // 7 giorni
@@ -47,7 +44,7 @@ export function ParameterDetail() {
     }
 
     loadData()
-  }, [environmentId, parameterId, environments, fetchEnvironments, fetchHistoricalData, fetchSuggestions])
+  }, [environmentId, parameterId, environments, fetchEnvironments, fetchHistoricalData])
 
   if (loading) {
     return (
@@ -77,9 +74,8 @@ export function ParameterDetail() {
   // Calcola trend
   const trend = data.length >= 2 ? data[data.length - 1].value - data[data.length - 2].value : 0
 
-  const parameterSuggestions = suggestions.filter(
-    (s) => s.environmentId === environmentId && s.parameterId === parameterId,
-  )
+  // Rimosso il sistema di suggerimenti per ora
+  const parameterSuggestions: any[] = []
 
   const statusColors = {
     optimal: "bg-green-100 text-green-800 border-green-200",

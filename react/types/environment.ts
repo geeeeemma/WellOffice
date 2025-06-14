@@ -21,15 +21,9 @@ export interface EnvironmentParameter {
 export interface Environment {
   id: string
   name: string
-  type: "office" | "meeting-room" | "open-space"
+  type: string // Nome della stanza (stesso valore di name)
   area: number // m²
-  parameters: {
-    occupancy: EnvironmentParameter
-    lighting: EnvironmentParameter
-    temperature: EnvironmentParameter
-    noise: EnvironmentParameter
-    humidity: EnvironmentParameter
-  }
+  parameters: EnvironmentParameter[]
   lastUpdated: string
 }
 

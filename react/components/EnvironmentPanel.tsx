@@ -11,11 +11,7 @@ interface EnvironmentPanelProps {
   environment: Environment
 }
 
-const environmentTypeLabels = {
-  office: "Ufficio",
-  "meeting-room": "Sala Riunioni",
-  "open-space": "Open Space",
-}
+// Non più necessario il mapping dei tipi, usiamo direttamente environment.type che ora contiene il nome della stanza
 
 export function EnvironmentPanel({ environment }: EnvironmentPanelProps) {
   const navigate = useNavigate()
@@ -29,7 +25,7 @@ export function EnvironmentPanel({ environment }: EnvironmentPanelProps) {
     await refreshEnvironment(environment.id)
   }
 
-  const activeParameters = Object.values(environment.parameters).filter((p) => p.isActive)
+  const activeParameters = environment.parameters.filter((p) => p.isActive)
   const criticalCount = activeParameters.filter((p) => p.status === "critical").length
   const warningCount = activeParameters.filter((p) => p.status === "borderline").length
   const optimalCount = activeParameters.filter((p) => p.status === "optimal").length
@@ -53,7 +49,7 @@ export function EnvironmentPanel({ environment }: EnvironmentPanelProps) {
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-white/90 text-sm">
                   <span className="flex items-center gap-1 flex-shrink-0">
                     <MapPin className="h-4 w-4" />
-                    {environmentTypeLabels[environment.type]}
+                    {environment.type}
                   </span>
                   <span className="flex items-center gap-1 flex-shrink-0">
                     <Activity className="h-4 w-4" />
@@ -131,7 +127,7 @@ export function EnvironmentPanel({ environment }: EnvironmentPanelProps) {
 
       <CardContent className="p-4 sm:p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
-          {Object.values(environment.parameters).map((parameter) => (
+          {environment.parameters.map((parameter) => (
             <ParameterCard
               key={parameter.id}
               parameter={parameter}

@@ -22,27 +22,32 @@ class ApiService {
   }
 
   async getEnvironments(): Promise<Environment[]> {
-    // Mock data per ora - sostituire con vera chiamata API
-    return Promise.resolve(mockEnvironments)
+    try {
+      const response = await this.request<Environment[]>('/dashboard/environments')
+      return response
+    } catch (error) {
+      console.error('Error fetching environments:', error)
+      throw error
+    }
   }
 
   async getEnvironment(id: string): Promise<Environment> {
-    const environments = await this.getEnvironments()
-    const environment = environments.find((env) => env.id === id)
-    if (!environment) {
-      throw new Error(`Environment with id ${id} not found`)
+    try {
+      const environments = await this.getEnvironments()
+      const environment = environments.find((env) => env.id === id)
+      if (!environment) {
+        throw new Error(`Environment with id ${id} not found`)
+      }
+      return environment
+    } catch (error) {
+      console.error('Error fetching environment:', error)
+      throw error
     }
-    return environment
   }
 
   async getHistoricalData(environmentId: string, parameterId: string, hours = 24): Promise<HistoricalData[]> {
     // Mock data per ora
     return Promise.resolve(generateMockHistoricalData(hours))
-  }
-
-  async getSuggestions(): Promise<Suggestion[]> {
-    // Mock data per ora
-    return Promise.resolve(mockSuggestions)
   }
 
   async updateThresholds(update: ThresholdUpdate): Promise<void> {
@@ -65,8 +70,8 @@ const mockEnvironments: Environment[] = [
     name: "Ufficio Operativo",
     type: "office",
     area: 45,
-    parameters: {
-      occupancy: {
+    parameters: [
+      {
         id: "occupancy",
         name: "Popolosità",
         value: 0.18,
@@ -79,7 +84,7 @@ const mockEnvironments: Environment[] = [
           { id: "occ-2", name: "Sensore Movimento Centrale", isActive: true },
         ],
       },
-      lighting: {
+      {
         id: "lighting",
         name: "Luminosità",
         value: 520,
@@ -92,7 +97,7 @@ const mockEnvironments: Environment[] = [
           { id: "light-2", name: "Luxmetro Scrivania", isActive: false },
         ],
       },
-      temperature: {
+      {
         id: "temperature",
         name: "Temperatura",
         value: 22.5,
@@ -102,7 +107,7 @@ const mockEnvironments: Environment[] = [
         isActive: true,
         sensors: [{ id: "temp-1", name: "Termometro Ambiente", isActive: true }],
       },
-      noise: {
+      {
         id: "noise",
         name: "Acustica",
         value: 45,
@@ -112,7 +117,7 @@ const mockEnvironments: Environment[] = [
         isActive: true,
         sensors: [{ id: "noise-1", name: "Fonometro Centrale", isActive: true }],
       },
-      humidity: {
+      {
         id: "humidity",
         name: "Umidità",
         value: 55,
@@ -121,7 +126,27 @@ const mockEnvironments: Environment[] = [
         isActive: false,
         sensors: [{ id: "hum-1", name: "Igrometro Parete", isActive: false }],
       },
-    },
+      {
+        id: "air_quality",
+        name: "Qualità dell'Aria",
+        value: 42,
+        unit: "IAQ",
+        status: "optimal",
+        thresholds: { optimal: { min: 0, max: 50 }, borderline: { min: 51, max: 100 } },
+        isActive: true,
+        sensors: [{ id: "air-1", name: "Sensore Qualità Aria", isActive: true }],
+      },
+      {
+        id: "co2",
+        name: "CO2",
+        value: 420,
+        unit: "ppm",
+        status: "optimal",
+        thresholds: { optimal: { min: 400, max: 800 }, borderline: { min: 350, max: 1000 } },
+        isActive: true,
+        sensors: [{ id: "co2-1", name: "Sensore CO2", isActive: true }],
+      },
+    ],
     lastUpdated: new Date().toISOString(),
   },
   {
@@ -129,8 +154,8 @@ const mockEnvironments: Environment[] = [
     name: "Sala Riunioni",
     type: "meeting-room",
     area: 25,
-    parameters: {
-      occupancy: {
+    parameters: [
+      {
         id: "occupancy",
         name: "Popolosità",
         value: 0.32,
@@ -140,7 +165,7 @@ const mockEnvironments: Environment[] = [
         isActive: true,
         sensors: [{ id: "occ-3", name: "Sensore Presenza Tavolo", isActive: true }],
       },
-      lighting: {
+      {
         id: "lighting",
         name: "Luminosità",
         value: 680,
@@ -150,7 +175,7 @@ const mockEnvironments: Environment[] = [
         isActive: true,
         sensors: [{ id: "light-3", name: "Luxmetro Soffitto", isActive: true }],
       },
-      temperature: {
+      {
         id: "temperature",
         name: "Temperatura",
         value: 26.8,
@@ -163,7 +188,7 @@ const mockEnvironments: Environment[] = [
           { id: "temp-3", name: "Termometro Tavolo", isActive: true },
         ],
       },
-      noise: {
+      {
         id: "noise",
         name: "Acustica",
         value: 58,
@@ -173,7 +198,7 @@ const mockEnvironments: Environment[] = [
         isActive: true,
         sensors: [{ id: "noise-2", name: "Microfono Ambiente", isActive: true }],
       },
-      humidity: {
+      {
         id: "humidity",
         name: "Umidità",
         value: 48,
@@ -183,7 +208,7 @@ const mockEnvironments: Environment[] = [
         isActive: true,
         sensors: [{ id: "hum-2", name: "Igrometro Digitale", isActive: true }],
       },
-    },
+    ],
     lastUpdated: new Date().toISOString(),
   },
   {
@@ -191,8 +216,8 @@ const mockEnvironments: Environment[] = [
     name: "Open Space",
     type: "open-space",
     area: 120,
-    parameters: {
-      occupancy: {
+    parameters: [
+      {
         id: "occupancy",
         name: "Popolosità",
         value: 0.15,
@@ -206,7 +231,7 @@ const mockEnvironments: Environment[] = [
           { id: "occ-6", name: "Sensore Zona C", isActive: false },
         ],
       },
-      lighting: {
+      {
         id: "lighting",
         name: "Luminosità",
         value: 420,
@@ -219,7 +244,7 @@ const mockEnvironments: Environment[] = [
           { id: "light-5", name: "Luxmetro Sud", isActive: true },
         ],
       },
-      temperature: {
+      {
         id: "temperature",
         name: "Temperatura",
         value: 21.2,
@@ -232,7 +257,7 @@ const mockEnvironments: Environment[] = [
           { id: "temp-5", name: "Termometro Zona B", isActive: true },
         ],
       },
-      noise: {
+      {
         id: "noise",
         name: "Acustica",
         value: 62,
@@ -242,7 +267,7 @@ const mockEnvironments: Environment[] = [
         isActive: true,
         sensors: [{ id: "noise-3", name: "Fonometro Centrale", isActive: true }],
       },
-      humidity: {
+      {
         id: "humidity",
         name: "Umidità",
         value: 38,
@@ -252,51 +277,8 @@ const mockEnvironments: Environment[] = [
         isActive: true,
         sensors: [{ id: "hum-3", name: "Igrometro Wireless", isActive: true }],
       },
-    },
+    ],
     lastUpdated: new Date().toISOString(),
-  },
-]
-
-const mockSuggestions: Suggestion[] = [
-  {
-    id: "1",
-    environmentId: "meeting-1",
-    parameterId: "occupancy",
-    type: "critical",
-    title: "Sovraffollamento Sala Riunioni",
-    description: "La densità di occupazione supera i limiti raccomandati",
-    action: "Ridurre il numero di partecipanti o utilizzare una sala più grande",
-    priority: 1,
-  },
-  {
-    id: "2",
-    environmentId: "meeting-1",
-    parameterId: "temperature",
-    type: "critical",
-    title: "Temperatura Elevata",
-    description: "La temperatura è superiore ai valori di comfort",
-    action: "Regolare il sistema di climatizzazione o migliorare la ventilazione",
-    priority: 1,
-  },
-  {
-    id: "3",
-    environmentId: "openspace-1",
-    parameterId: "noise",
-    type: "warning",
-    title: "Livello Acustico Alto",
-    description: "Il rumore supera i livelli ottimali per la produttività",
-    action: "Installare pannelli fonoassorbenti o creare zone silenziose",
-    priority: 2,
-  },
-  {
-    id: "4",
-    environmentId: "openspace-1",
-    parameterId: "lighting",
-    type: "warning",
-    title: "Illuminazione Insufficiente",
-    description: "I livelli di luce sono sotto la soglia ottimale",
-    action: "Aumentare l'illuminazione artificiale o migliorare quella naturale",
-    priority: 2,
   },
 ]
 
