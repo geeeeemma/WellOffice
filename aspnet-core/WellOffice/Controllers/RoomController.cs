@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WellOffice.Data;
 using WellOffice.Models;
+using WellOffice.Services;
 
 namespace WellOffice.Controllers;
 
@@ -9,42 +8,61 @@ namespace WellOffice.Controllers;
 [Route("api/[controller]")]
 public class RoomController : ControllerBase
 {
-    private readonly WellOfficeContext _context;
+    private readonly IRoomService _roomService;
 
-    public RoomController(WellOfficeContext context)
+    public RoomController(IRoomService roomService)
     {
-        _context = context;
+        _roomService = roomService;
     }
 
     // GET: api/Room
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Room>>> GetRooms()
     {
-        return await _context.Rooms.ToListAsync();
+        var rooms = await _roomService.GetAllAsync();
+        return Ok(rooms);
     }
 
     // GET: api/Room/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Room>> GetRoom(Guid id)
     {
-        var room = await _context.Rooms.FindAsync(id);
-
+        var room = await _roomService.GetByIdAsync(id);
         if (room == null)
         {
             return NotFound();
         }
+        return Ok(room);
+    }
 
-        return room;
+    // GET: api/Room/with-sensors
+    [HttpGet("with-sensors")]
+    public async Task<ActionResult<IEnumerable<Room>>> GetRoomsWithSensors()
+    {
+        var rooms = await _roomService.GetRoomsWithSensorsAsync();
+        return Ok(rooms);
+    }
+
+    // GET: api/Room/with-thresholds
+    [HttpGet("with-thresholds")]
+    public async Task<ActionResult<IEnumerable<Room>>> GetRoomsWithThresholds()
+    {
+        var rooms = await _roomService.GetRoomsWithThresholdsAsync();
+        return Ok(rooms);
     }
 
     // POST: api/Room
     [HttpPost]
     public async Task<ActionResult<Room>> CreateRoom(Room room)
     {
-        room.Id = Guid.NewGuid();
-        _context.Rooms.Add(room);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetRoom), new { id = room.Id }, room);
+        try
+        {
+            var createdRoom = await _roomService.CreateAsync(room);
+            return CreatedAtAction(nameof(GetRoom), new { id = createdRoom.Id }, createdRoom);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 } 
