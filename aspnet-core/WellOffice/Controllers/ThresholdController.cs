@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WellOffice.Data;
 using WellOffice.Models;
+using WellOffice.Services;
 
 namespace WellOffice.Controllers;
 
@@ -9,77 +8,61 @@ namespace WellOffice.Controllers;
 [Route("api/[controller]")]
 public class ThresholdController : ControllerBase
 {
-    private readonly WellOfficeContext _context;
+    private readonly IThresholdService _thresholdService;
 
-    public ThresholdController(WellOfficeContext context)
+    public ThresholdController(IThresholdService thresholdService)
     {
-        _context = context;
+        _thresholdService = thresholdService;
     }
 
     // GET: api/Threshold
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Threshold>>> GetThresholds()
     {
-        return await _context.Thresholds
-            .Include(t => t.Room)
-            .Include(t => t.Parameter)
-            .ToListAsync();
+        var thresholds = await _thresholdService.GetAllAsync();
+        return Ok(thresholds);
     }
 
     // GET: api/Threshold/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Threshold>> GetThreshold(Guid id)
     {
-        var threshold = await _context.Thresholds
-            .Include(t => t.Room)
-            .Include(t => t.Parameter)
-            .FirstOrDefaultAsync(t => t.Id == id);
-
+        var threshold = await _thresholdService.GetByIdAsync(id);
         if (threshold == null)
         {
             return NotFound();
         }
-
-        return threshold;
+        return Ok(threshold);
     }
 
     // GET: api/Threshold/room/5
     [HttpGet("room/{roomId}")]
     public async Task<ActionResult<IEnumerable<Threshold>>> GetThresholdsByRoom(Guid roomId)
     {
-        return await _context.Thresholds
-            .Include(t => t.Room)
-            .Include(t => t.Parameter)
-            .Where(t => t.RoomId == roomId)
-            .ToListAsync();
+        var thresholds = await _thresholdService.GetThresholdsByRoomAsync(roomId);
+        return Ok(thresholds);
+    }
+
+    // GET: api/Threshold/parameter/5
+    [HttpGet("parameter/{parameterId}")]
+    public async Task<ActionResult<IEnumerable<Threshold>>> GetThresholdsByParameter(Guid parameterId)
+    {
+        var thresholds = await _thresholdService.GetThresholdsByParameterAsync(parameterId);
+        return Ok(thresholds);
     }
 
     // POST: api/Threshold
     [HttpPost]
     public async Task<ActionResult<Threshold>> CreateThreshold(Threshold threshold)
     {
-        // Verify that Room and Parameter exist
-        var roomExists = await _context.Rooms.AnyAsync(r => r.Id == threshold.RoomId);
-        var parameterExists = await _context.Parameters.AnyAsync(p => p.Id == threshold.ParameterId);
-
-        if (!roomExists || !parameterExists)
+        try
         {
-            return BadRequest("Room or Parameter not found");
+            var createdThreshold = await _thresholdService.CreateThresholdAsync(threshold);
+            return CreatedAtAction(nameof(GetThreshold), new { id = createdThreshold.Id }, createdThreshold);
         }
-
-        // Verify that thresholds are valid
-        if (threshold.OptimalMinValue > threshold.OptimalMaxValue ||
-            threshold.AcceptableMinValue > threshold.AcceptableMaxValue ||
-            threshold.OptimalMinValue < threshold.AcceptableMinValue ||
-            threshold.OptimalMaxValue > threshold.AcceptableMaxValue)
+        catch (InvalidOperationException ex)
         {
-            return BadRequest("Invalid threshold values");
+            return BadRequest(ex.Message);
         }
-
-        threshold.Id = Guid.NewGuid();
-        _context.Thresholds.Add(threshold);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetThreshold), new { id = threshold.Id }, threshold);
     }
 } 

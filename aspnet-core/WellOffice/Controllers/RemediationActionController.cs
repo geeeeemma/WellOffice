@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WellOffice.Data;
 using WellOffice.Models;
+using WellOffice.Services;
 
 namespace WellOffice.Controllers;
 
@@ -9,66 +8,61 @@ namespace WellOffice.Controllers;
 [Route("api/[controller]")]
 public class RemediationActionController : ControllerBase
 {
-    private readonly WellOfficeContext _context;
+    private readonly IRemediationActionService _remediationActionService;
 
-    public RemediationActionController(WellOfficeContext context)
+    public RemediationActionController(IRemediationActionService remediationActionService)
     {
-        _context = context;
+        _remediationActionService = remediationActionService;
     }
 
     // GET: api/RemediationAction
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RemediationAction>>> GetRemediationActions()
     {
-        return await _context.RemediationActions
-            .Include(ra => ra.Sensor)
-            .OrderByDescending(ra => ra.ActionDate)
-            .ToListAsync();
+        var actions = await _remediationActionService.GetAllAsync();
+        return Ok(actions);
     }
 
     // GET: api/RemediationAction/5
     [HttpGet("{id}")]
     public async Task<ActionResult<RemediationAction>> GetRemediationAction(Guid id)
     {
-        var remediationAction = await _context.RemediationActions
-            .Include(ra => ra.Sensor)
-            .FirstOrDefaultAsync(ra => ra.Id == id);
-
-        if (remediationAction == null)
+        var action = await _remediationActionService.GetByIdAsync(id);
+        if (action == null)
         {
             return NotFound();
         }
-
-        return remediationAction;
+        return Ok(action);
     }
 
     // GET: api/RemediationAction/sensor/5
     [HttpGet("sensor/{sensorId}")]
     public async Task<ActionResult<IEnumerable<RemediationAction>>> GetRemediationActionsBySensor(Guid sensorId)
     {
-        return await _context.RemediationActions
-            .Include(ra => ra.Sensor)
-            .Where(ra => ra.SensorId == sensorId)
-            .OrderByDescending(ra => ra.ActionDate)
-            .ToListAsync();
+        var actions = await _remediationActionService.GetRemediationActionsBySensorAsync(sensorId);
+        return Ok(actions);
+    }
+
+    // GET: api/RemediationAction/sensor/5/latest
+    [HttpGet("sensor/{sensorId}/latest")]
+    public async Task<ActionResult<IEnumerable<RemediationAction>>> GetLatestRemediationActions(Guid sensorId, [FromQuery] int count = 10)
+    {
+        var actions = await _remediationActionService.GetLatestRemediationActionsAsync(sensorId, count);
+        return Ok(actions);
     }
 
     // POST: api/RemediationAction
     [HttpPost]
-    public async Task<ActionResult<RemediationAction>> CreateRemediationAction(RemediationAction remediationAction)
+    public async Task<ActionResult<RemediationAction>> CreateRemediationAction(RemediationAction action)
     {
-        // Verify that Sensor exists
-        var sensor = await _context.Sensors.FindAsync(remediationAction.SensorId);
-        if (sensor == null)
+        try
         {
-            return BadRequest("Sensor not found");
+            var createdAction = await _remediationActionService.CreateRemediationActionAsync(action);
+            return CreatedAtAction(nameof(GetRemediationAction), new { id = createdAction.Id }, createdAction);
         }
-
-        remediationAction.Id = Guid.NewGuid();
-        remediationAction.ActionDate = DateTime.UtcNow;
-        _context.RemediationActions.Add(remediationAction);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetRemediationAction), new { id = remediationAction.Id }, remediationAction);
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 } 

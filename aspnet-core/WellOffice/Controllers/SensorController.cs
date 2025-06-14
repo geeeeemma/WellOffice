@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WellOffice.Data;
 using WellOffice.Models;
+using WellOffice.Services;
 
 namespace WellOffice.Controllers;
 
@@ -9,57 +8,61 @@ namespace WellOffice.Controllers;
 [Route("api/[controller]")]
 public class SensorController : ControllerBase
 {
-    private readonly WellOfficeContext _context;
+    private readonly ISensorService _sensorService;
 
-    public SensorController(WellOfficeContext context)
+    public SensorController(ISensorService sensorService)
     {
-        _context = context;
+        _sensorService = sensorService;
     }
 
     // GET: api/Sensor
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Sensor>>> GetSensors()
     {
-        return await _context.Sensors
-            .Include(s => s.Room)
-            .Include(s => s.Parameter)
-            .ToListAsync();
+        var sensors = await _sensorService.GetSensorsWithDetailsAsync();
+        return Ok(sensors);
     }
 
     // GET: api/Sensor/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Sensor>> GetSensor(Guid id)
     {
-        var sensor = await _context.Sensors
-            .Include(s => s.Room)
-            .Include(s => s.Parameter)
-            .FirstOrDefaultAsync(s => s.Id == id);
-
+        var sensor = await _sensorService.GetByIdAsync(id);
         if (sensor == null)
         {
             return NotFound();
         }
+        return Ok(sensor);
+    }
 
-        return sensor;
+    // GET: api/Sensor/room/5
+    [HttpGet("room/{roomId}")]
+    public async Task<ActionResult<IEnumerable<Sensor>>> GetSensorsByRoom(Guid roomId)
+    {
+        var sensors = await _sensorService.GetSensorsByRoomAsync(roomId);
+        return Ok(sensors);
+    }
+
+    // GET: api/Sensor/parameter/5
+    [HttpGet("parameter/{parameterId}")]
+    public async Task<ActionResult<IEnumerable<Sensor>>> GetSensorsByParameter(Guid parameterId)
+    {
+        var sensors = await _sensorService.GetSensorsByParameterAsync(parameterId);
+        return Ok(sensors);
     }
 
     // POST: api/Sensor
     [HttpPost]
     public async Task<ActionResult<Sensor>> CreateSensor(Sensor sensor)
     {
-        // Verify that Room and Parameter exist
-        var roomExists = await _context.Rooms.AnyAsync(r => r.Id == sensor.RoomId);
-        var parameterExists = await _context.Parameters.AnyAsync(p => p.Id == sensor.ParameterId);
-
-        if (!roomExists || !parameterExists)
+        try
         {
-            return BadRequest("Room or Parameter not found");
+            var createdSensor = await _sensorService.CreateAsync(sensor);
+            return CreatedAtAction(nameof(GetSensor), new { id = createdSensor.Id }, createdSensor);
         }
-
-        sensor.Id = Guid.NewGuid();
-        _context.Sensors.Add(sensor);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetSensor), new { id = sensor.Id }, sensor);
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 } 
