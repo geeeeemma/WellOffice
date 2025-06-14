@@ -1,8 +1,9 @@
 "use client"
 
 import { generateObject } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { createOpenAI } from "@ai-sdk/openai"
 import { z } from "zod"
+import config from '../src/config/env'
 import type { AIAnalysisRequest, AIAnalysisResponse, AIServiceConfig, HistoricalData } from "@/types/ai"
 import { useState } from "react"
 
@@ -65,6 +66,11 @@ class AIService {
   async generateSuggestions(request: AIAnalysisRequest): Promise<AIAnalysisResponse> {
     try {
       const prompt = this.buildAnalysisPrompt(request)
+      
+      // Crea l'istanza OpenAI con la chiave API
+      const openai = createOpenAI({
+        apiKey: this.config.apiKey,
+      })
 
       const result = await generateObject({
         model: openai(this.config.model),
@@ -185,7 +191,10 @@ Fornisci ragionamenti dettagliati basati sui dati e sulle best practice.
           title: z.string(),
           description: z.string(),
           action: z.string(),
-          priority: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+          priority: z.union([
+            z.literal(1), z.literal(2), z.literal(3),
+            z.literal("1"), z.literal("2"), z.literal("3")
+          ]).transform(val => typeof val === 'string' ? parseInt(val, 10) : val),
           type: z.enum(["immediate", "short-term", "long-term"]),
           estimatedImpact: z.enum(["high", "medium", "low"]),
           implementationDifficulty: z.enum(["easy", "medium", "hard"]),
@@ -286,7 +295,7 @@ export function useAIService() {
 
     try {
       const aiService = getAIService({
-        apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || "demo-key",
+        apiKey: config.openaiApiKey,
       })
 
       const response = await aiService.generateSuggestions(request)

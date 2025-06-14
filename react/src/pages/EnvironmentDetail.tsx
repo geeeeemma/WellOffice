@@ -1,7 +1,5 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useNavigate } from "react-router-dom"
 import { useEnvironmentStore } from "@/store/useEnvironmentStore"
 import type { Environment } from "@/types/environment"
 import { ParameterCard } from "@/components/ParameterCard"
@@ -10,9 +8,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Building2, RefreshCw, Calendar, MapPin } from "lucide-react"
 
-export default function EnvironmentDetail() {
+export function EnvironmentDetail() {
   const params = useParams()
-  const router = useRouter()
+  const navigate = useNavigate()
   const { environments, historicalData, fetchEnvironments, fetchHistoricalData, refreshEnvironment } =
     useEnvironmentStore()
 
@@ -53,7 +51,7 @@ export default function EnvironmentDetail() {
   }
 
   const handleParameterClick = (parameterId: string) => {
-    router.push(`/environment/${environmentId}/parameter/${parameterId}`)
+    navigate(`/environment/${environmentId}/parameter/${parameterId}`)
   }
 
   if (loading) {
@@ -85,11 +83,12 @@ export default function EnvironmentDetail() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="min-h-screen">
+      <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={() => router.back()}>
+          <Button variant="outline" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
@@ -157,5 +156,6 @@ export default function EnvironmentDetail() {
         </div>
       </div>
     </div>
+    </div>
   )
-}
+} 

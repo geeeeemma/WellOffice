@@ -1,6 +1,8 @@
 import type { Environment, HistoricalData, Suggestion, ThresholdUpdate, SensorUpdate } from "@/types/environment"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+import config from '../src/config/env'
+
+const API_BASE_URL = config.apiUrl
 
 class ApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {

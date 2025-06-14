@@ -1,7 +1,5 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useNavigate } from "react-router-dom"
 import { useEnvironmentStore } from "@/store/useEnvironmentStore"
 import type { Environment, EnvironmentParameter } from "@/types/environment"
 import { HistoricalChart } from "@/components/HistoricalChart"
@@ -12,9 +10,9 @@ import { ArrowLeft, RefreshCw, TrendingUp, TrendingDown, Minus } from "lucide-re
 import { useToast } from "@/hooks/use-toast"
 import { AISuggestions } from "@/components/AISuggestions"
 
-export default function ParameterDetail() {
+export function ParameterDetail() {
   const params = useParams()
-  const router = useRouter()
+  const navigate = useNavigate()
   const { environments, historicalData, suggestions, fetchEnvironments, fetchHistoricalData, fetchSuggestions } =
     useEnvironmentStore()
 
@@ -111,11 +109,12 @@ export default function ParameterDetail() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="min-h-screen">
+      <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={() => router.back()}>
+          <Button variant="outline" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
@@ -149,8 +148,8 @@ export default function ParameterDetail() {
               )}
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <Badge variant="outline" className={statusColors[parameter.status]}>
-                {statusLabels[parameter.status]}
+              <Badge variant="outline" className={statusColors[parameter.status || "optimal"]}>
+                {statusLabels[parameter.status || "optimal"]}
               </Badge>
               {trend !== 0 && (
                 <div className="flex items-center gap-1 text-sm">
@@ -206,5 +205,6 @@ export default function ParameterDetail() {
       {/* AI-Generated Suggestions */}
       <AISuggestions environment={environment} parameter={parameter} historicalData={data} />
     </div>
+    </div>
   )
-}
+} 

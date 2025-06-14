@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { useEnvironmentStore } from "@/store/useEnvironmentStore"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,12 +7,12 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Settings, RefreshCw, Sliders, Wifi, WifiOff } from "lucide-react"
+import { RefreshCw, Sliders, Wifi, WifiOff } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiService } from "@/services/api"
 import type { ThresholdUpdate, SensorUpdate } from "@/types/environment"
 
-export default function SettingsPage() {
+export function Settings() {
   const { environments, fetchEnvironments } = useEnvironmentStore()
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState<string | null>(null)
@@ -121,7 +119,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950">
+    <div className="min-h-screen">
       <div className="container mx-auto p-6 space-y-8">
         {/* Header */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-600 to-gray-700 p-8 text-white shadow-2xl">
@@ -129,9 +127,7 @@ export default function SettingsPage() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
 
           <div className="relative z-10 flex items-center gap-4">
-            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-              <Settings className="h-8 w-8" />
-            </div>
+            
             <div>
               <h1 className="text-4xl font-bold mb-2">Gestione Parametri</h1>
               <p className="text-gray-100 text-lg">Configura soglie e sensori per ogni ambiente</p>

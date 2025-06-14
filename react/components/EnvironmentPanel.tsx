@@ -1,12 +1,10 @@
-"use client"
-
 import type { Environment } from "@/types/environment"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ParameterCard } from "./ParameterCard"
 import { Building2, RefreshCw, ExternalLink, MapPin, Calendar, Activity } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import { useEnvironmentStore } from "@/store/useEnvironmentStore"
 
 interface EnvironmentPanelProps {
@@ -20,11 +18,11 @@ const environmentTypeLabels = {
 }
 
 export function EnvironmentPanel({ environment }: EnvironmentPanelProps) {
-  const router = useRouter()
+  const navigate = useNavigate()
   const { refreshEnvironment } = useEnvironmentStore()
 
   const handleParameterClick = (parameterId: string) => {
-    router.push(`/environment/${environment.id}/parameter/${parameterId}`)
+    navigate(`/environment/${environment.id}/parameter/${parameterId}`)
   }
 
   const handleRefresh = async () => {
@@ -109,7 +107,7 @@ export function EnvironmentPanel({ environment }: EnvironmentPanelProps) {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => router.push(`/environment/${environment.id}`)}
+                  onClick={() => navigate(`/environment/${environment.id}`)}
                   className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
                 >
                   <ExternalLink className="h-4 w-4" />
