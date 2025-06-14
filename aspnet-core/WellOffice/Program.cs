@@ -7,11 +7,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
+// Configure AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 // Configure DbContext
 builder.Services.AddDbContext<WellOfficeContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register services
+builder.Services.AddScoped<IMappingService, MappingService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IParameterService, ParameterService>();
 builder.Services.AddScoped<ISensorService, SensorService>();

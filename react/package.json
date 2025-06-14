@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "generate-api": "nswag run nswag.json",
+    "generate-api:watch": "nswag run nswag.json --watch"
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",
@@ -71,6 +73,7 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.5.2",
     "autoprefixer": "^10.4.20",
+    "nswag": "^14.4.0",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5",
