@@ -126,10 +126,10 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
   if (loading) {
     return (
       <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950">
-        <CardContent className="p-8">
-          <div className="flex items-center justify-center space-x-3">
+        <CardContent className="p-4 sm:p-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-3 text-center sm:text-left">
             <Brain className="h-8 w-8 text-purple-600 animate-pulse" />
-            <div className="text-center">
+            <div>
               <p className="text-lg font-semibold text-purple-700 dark:text-purple-300">IA sta analizzando i dati...</p>
               <p className="text-sm text-purple-600 dark:text-purple-400">
                 Generazione suggerimenti intelligenti in corso
@@ -145,10 +145,10 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
   if (error) {
     return (
       <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3 text-red-800 dark:text-red-200">
-            <AlertTriangle className="h-5 w-5" />
-            <div>
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start gap-3 text-red-800 dark:text-red-200">
+            <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
               <p className="font-medium">Errore nell'analisi AI</p>
               <p className="text-sm">{error}</p>
             </div>
@@ -156,7 +156,7 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
           <Button
             onClick={loadAISuggestions}
             variant="outline"
-            className="mt-4 border-red-300 text-red-700 hover:bg-red-100"
+            className="mt-4 border-red-300 text-red-700 hover:bg-red-100 w-full sm:w-auto"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Riprova
@@ -169,7 +169,7 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
   if (suggestions.length === 0) {
     return (
       <Card className="border-0 shadow-xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950">
-        <CardContent className="p-8 text-center">
+        <CardContent className="p-4 sm:p-8 text-center">
           <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-green-800 dark:text-green-200 mb-2">Parametro Ottimale!</h3>
           <p className="text-green-600 dark:text-green-400">
@@ -185,12 +185,12 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
       {/* Header con Assessment Generale */}
       <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-xl">
-            <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg">
-              <Brain className="h-6 w-6 text-white" />
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-3 text-lg sm:text-xl">
+            <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg flex-shrink-0">
+              <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            Analisi AI per {parameter.name}
-            <Badge className="bg-gradient-to-r from-purple-500 to-blue-600 text-white border-0">
+            <span className="min-w-0 flex-1">Analisi AI per {parameter.name}</span>
+            <Badge className="bg-gradient-to-r from-purple-500 to-blue-600 text-white border-0 text-xs sm:text-sm">
               <Sparkles className="h-3 w-3 mr-1" />
               {suggestions.length} suggerimenti
             </Badge>
@@ -209,7 +209,7 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
                       : overallAssessment.status === "concerning"
                         ? "bg-yellow-500"
                         : "bg-red-500"
-                } text-white border-0`}
+                } text-white border-0 text-xs sm:text-sm`}
               >
                 {overallAssessment.status === "excellent"
                   ? "Eccellente"
@@ -221,16 +221,16 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
               </Badge>
             </div>
 
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{overallAssessment.summary}</p>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base">{overallAssessment.summary}</p>
 
             {overallAssessment.keyInsights.length > 0 && (
               <div className="space-y-2">
-                <h4 className="font-semibold text-purple-700 dark:text-purple-300">Insights Chiave:</h4>
+                <h4 className="font-semibold text-purple-700 dark:text-purple-300 text-sm sm:text-base">Insights Chiave:</h4>
                 <ul className="space-y-1">
                   {overallAssessment.keyInsights.map((insight: string, index: number) => (
                     <li key={index} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <Info className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />
-                      {insight}
+                      <span>{insight}</span>
                     </li>
                   ))}
                 </ul>
@@ -247,28 +247,28 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
 
           return (
             <Card key={suggestion.id} className="border-0 shadow-lg bg-white dark:bg-gray-900 overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white">
-                    <TypeIcon className="h-6 w-6" />
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-start gap-4">
+                  <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white flex-shrink-0">
+                    <TypeIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
 
-                  <div className="flex-1 space-y-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{suggestion.title}</h4>
-                        <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{suggestion.description}</p>
+                  <div className="flex-1 space-y-4 min-w-0">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">{suggestion.title}</h4>
+                        <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm sm:text-base">{suggestion.description}</p>
                       </div>
 
-                      <Badge className={priorityColors[suggestion.priority]}>
+                      <Badge className={`${priorityColors[suggestion.priority]} text-xs sm:text-sm flex-shrink-0`}>
                         {priorityLabels[suggestion.priority]}
                       </Badge>
                     </div>
 
                     {/* Metadati del suggerimento */}
-                    <div className="flex flex-wrap gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm">
                       <div className="flex items-center gap-1">
-                        <TrendingUp className="h-4 w-4" />
+                        <TrendingUp className="h-4 w-4 flex-shrink-0" />
                         <span className="text-gray-500">Impatto:</span>
                         <span className={impactColors[suggestion.estimatedImpact]}>
                           {suggestion.estimatedImpact === "high"
@@ -280,7 +280,7 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
                       </div>
 
                       <div className="flex items-center gap-1">
-                        <Wrench className="h-4 w-4" />
+                        <Wrench className="h-4 w-4 flex-shrink-0" />
                         <span className="text-gray-500">Difficoltà:</span>
                         <span className={difficultyColors[suggestion.implementationDifficulty]}>
                           {suggestion.implementationDifficulty === "easy"
@@ -293,7 +293,7 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
 
                       {suggestion.estimatedCost && (
                         <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4" />
+                          <DollarSign className="h-4 w-4 flex-shrink-0" />
                           <span className="text-gray-500">Costo:</span>
                           <span className="text-gray-700 dark:text-gray-300">
                             {suggestion.estimatedCost === "low"
@@ -311,8 +311,8 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
                     {/* Azione consigliata */}
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
                       <div className="flex items-start gap-3">
-                        <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
-                        <div className="flex-1">
+                        <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
                           <p className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Azione Consigliata</p>
                           <p className="text-blue-700 dark:text-blue-200 text-sm">{suggestion.action}</p>
                         </div>
@@ -322,32 +322,12 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
                     {/* Ragionamento AI */}
                     <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                       <h5 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                        <Brain className="h-4 w-4" />
+                        <Brain className="h-4 w-4 flex-shrink-0" />
                         Ragionamento AI
                       </h5>
                       <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{suggestion.reasoning}</p>
                     </div>
 
-                    {/* Bottone applica */}
-                    <div className="flex justify-end">
-                      <Button
-                        onClick={() => handleApplySuggestion(suggestion)}
-                        disabled={applyingSuggestion === suggestion.id}
-                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-0 shadow-lg px-6 py-2"
-                      >
-                        {applyingSuggestion === suggestion.id ? (
-                          <>
-                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                            Applicando...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="h-4 w-4 mr-2" />
-                            Applica Suggerimento AI
-                          </>
-                        )}
-                      </Button>
-                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -361,10 +341,11 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
         <Button
           onClick={loadAISuggestions}
           variant="outline"
-          className="border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950"
+          className="border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950 w-full sm:w-auto"
         >
           <RefreshCw className="h-4 w-4 mr-2" />
-          Rigenera Analisi AI
+          <span className="hidden sm:inline">Rigenera Analisi AI</span>
+          <span className="sm:hidden">Rigenera</span>
         </Button>
       </div>
     </div>
