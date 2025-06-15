@@ -7,4 +7,5 @@ public interface ISensorDataService : IBaseService<SensorData>
     Task<IEnumerable<SensorData>> GetSensorDataBySensorAsync(Guid sensorId);
     Task<IEnumerable<SensorData>> GetLatestSensorDataAsync(Guid sensorId, int count = 10);
     Task<SensorData> CreateSensorDataAsync(SensorData sensorData, bool validateSensor = true);
+    Task<IEnumerable<SensorData>> GetHistoricalDataForParameterAsync(Guid roomId, Guid parameterId, int hours = 24);
 } 

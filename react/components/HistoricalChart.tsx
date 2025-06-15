@@ -4,7 +4,7 @@ import type { HistoricalData } from "@/types/environment"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { format } from "date-fns"
-import { it } from "date-fns/locale"
+import { enUS } from "date-fns/locale"
 
 interface HistoricalChartProps {
   data: HistoricalData[]
@@ -17,13 +17,13 @@ export function HistoricalChart({ data, title, unit, color = "#3b82f6" }: Histor
   const chartData = data.map((item) => ({
     ...item,
     timestamp: new Date(item.timestamp).getTime(),
-    formattedTime: format(new Date(item.timestamp), "HH:mm", { locale: it }),
+    formattedTime: format(new Date(item.timestamp), "MMM dd HH:mm", { locale: enUS }),
   }))
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">{title} - Ultime 24 ore</CardTitle>
+        <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-64">
@@ -35,7 +35,7 @@ export function HistoricalChart({ data, title, unit, color = "#3b82f6" }: Histor
               <Tooltip
                 labelFormatter={(value, payload) => {
                   if (payload && payload[0]) {
-                    return format(new Date(payload[0].payload.timestamp), "dd/MM/yyyy HH:mm", { locale: it })
+                    return format(new Date(payload[0].payload.timestamp), "MMM dd, yyyy HH:mm", { locale: enUS })
                   }
                   return value
                 }}

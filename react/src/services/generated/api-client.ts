@@ -63,6 +63,61 @@ export class WellOfficeApiClient {
     }
 
     /**
+     * @param hours (optional) 
+     * @return Success
+     */
+    historical(environmentId: string, parameterId: string, hours: number | undefined): Promise<HistoricalDataDto[]> {
+        let url_ = this.baseUrl + "/Dashboard/environments/{environmentId}/parameters/{parameterId}/historical?";
+        if (environmentId === undefined || environmentId === null)
+            throw new Error("The parameter 'environmentId' must be defined.");
+        url_ = url_.replace("{environmentId}", encodeURIComponent("" + environmentId));
+        if (parameterId === undefined || parameterId === null)
+            throw new Error("The parameter 'parameterId' must be defined.");
+        url_ = url_.replace("{parameterId}", encodeURIComponent("" + parameterId));
+        if (hours === null)
+            throw new Error("The parameter 'hours' cannot be null.");
+        else if (hours !== undefined)
+            url_ += "hours=" + encodeURIComponent("" + hours) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processHistorical(_response);
+        });
+    }
+
+    protected processHistorical(response: Response): Promise<HistoricalDataDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(HistoricalDataDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<HistoricalDataDto[]>(null as any);
+    }
+
+    /**
      * @return Success
      */
     parameterAll(): Promise<Parameter[]> {
@@ -1209,6 +1264,61 @@ export class WellOfficeApiClient {
     }
 
     /**
+     * @param hours (optional) 
+     * @return Success
+     */
+    historical2(environmentId: string, parameterId: string, hours: number | undefined): Promise<HistoricalDataDto[]> {
+        let url_ = this.baseUrl + "/api/SensorData/environment/{environmentId}/parameter/{parameterId}/historical?";
+        if (environmentId === undefined || environmentId === null)
+            throw new Error("The parameter 'environmentId' must be defined.");
+        url_ = url_.replace("{environmentId}", encodeURIComponent("" + environmentId));
+        if (parameterId === undefined || parameterId === null)
+            throw new Error("The parameter 'parameterId' must be defined.");
+        url_ = url_.replace("{parameterId}", encodeURIComponent("" + parameterId));
+        if (hours === null)
+            throw new Error("The parameter 'hours' cannot be null.");
+        else if (hours !== undefined)
+            url_ += "hours=" + encodeURIComponent("" + hours) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processHistorical2(_response);
+        });
+    }
+
+    protected processHistorical2(response: Response): Promise<HistoricalDataDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(HistoricalDataDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<HistoricalDataDto[]>(null as any);
+    }
+
+    /**
      * @return Success
      */
     thresholdAll(): Promise<Threshold[]> {
@@ -1798,6 +1908,46 @@ export interface IEnvironmentSensorDto {
     id?: string | undefined;
     name?: string | undefined;
     isActive?: boolean;
+}
+
+export class HistoricalDataDto implements IHistoricalDataDto {
+    timestamp?: string | undefined;
+    value?: number;
+
+    constructor(data?: IHistoricalDataDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.timestamp = _data["timestamp"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): HistoricalDataDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new HistoricalDataDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["timestamp"] = this.timestamp;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface IHistoricalDataDto {
+    timestamp?: string | undefined;
+    value?: number;
 }
 
 export class OptimalRangeDto implements IOptimalRangeDto {
