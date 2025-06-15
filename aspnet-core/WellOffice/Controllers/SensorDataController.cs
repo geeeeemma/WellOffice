@@ -53,6 +53,31 @@ public class SensorDataController : ControllerBase
         return Ok(sensorData);
     }
 
+    // GET: api/SensorData/environment/{environmentId}/parameter/{parameterId}/historical
+    [HttpGet("environment/{environmentId}/parameter/{parameterId}/historical")]
+    public async Task<ActionResult<IEnumerable<HistoricalDataDto>>> GetHistoricalDataForParameter(
+        Guid environmentId, 
+        Guid parameterId, 
+        [FromQuery] int hours = 24)
+    {
+        try
+        {
+            var sensorData = await _sensorDataService.GetHistoricalDataForParameterAsync(environmentId, parameterId, hours);
+            
+            var historicalData = sensorData.Select(sd => new HistoricalDataDto
+            {
+                Timestamp = sd.DetectionDate.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                Value = (double)sd.Value
+            }).ToList();
+
+            return Ok(historicalData);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error retrieving historical data: {ex.Message}");
+        }
+    }
+
     // POST: api/SensorData
     [HttpPost]
     public async Task<ActionResult<IEnumerable<SensorData>>> CreateSensorData(SensorDataRequestDto sensorData)

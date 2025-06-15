@@ -29,6 +29,20 @@ public class SensorDataService : BaseService<SensorData>, ISensorDataService
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<SensorData>> GetHistoricalDataForParameterAsync(Guid roomId, Guid parameterId, int hours = 24)
+    {
+        var cutoffDate = DateTime.UtcNow.AddHours(-hours);
+        
+        return await _context.SensorData
+            .Include(sd => sd.Sensor)
+            .Where(sd => sd.Sensor.RoomId == roomId 
+                      && sd.Sensor.ParameterId == parameterId 
+                      && sd.Sensor.IsActive 
+                      && sd.DetectionDate >= cutoffDate)
+            .OrderBy(sd => sd.DetectionDate)
+            .ToListAsync();
+    }
+
     public async Task<SensorData> CreateSensorDataAsync(SensorData sensorData, bool validateSensor = true)
     {
         if (validateSensor)

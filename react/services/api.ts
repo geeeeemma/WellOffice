@@ -1,10 +1,16 @@
 import type { Environment, HistoricalData, Suggestion, ThresholdUpdate, SensorUpdate } from "@/types/environment"
+import { WellOfficeApiClient } from '../src/services/generated/api-client'
 
 import config from '../src/config/env'
 
 const API_BASE_URL = config.apiUrl
 
 class ApiService {
+  private apiClient: WellOfficeApiClient
+
+  constructor() {
+    this.apiClient = new WellOfficeApiClient(API_BASE_URL)
+  }
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     console.log(`${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -86,8 +92,26 @@ class ApiService {
   }
 
   async getHistoricalData(environmentId: string, parameterId: string, hours = 24): Promise<HistoricalData[]> {
-    // Mock data per ora
-    return Promise.resolve(generateMockHistoricalData(hours))
+    try {
+      console.log(`🔍 Fetching historical data for environment ${environmentId}, parameter ${parameterId}, hours ${hours}`)
+      
+      const response = await this.apiClient.historical(environmentId, parameterId, hours)
+      
+      console.log('✅ Historical data response:', response)
+      
+      // Converte dal formato DTO al formato atteso dal frontend
+      const historicalData: HistoricalData[] = response.map(item => ({
+        timestamp: item.timestamp || '',
+        value: item.value || 0
+      }))
+      
+      return historicalData
+    } catch (error) {
+      console.error('❌ Error fetching historical data:', error)
+      // Fallback ai dati mock in caso di errore
+      console.log('📊 Using mock data as fallback')
+      return generateMockHistoricalData(hours)
+    }
   }
 
   async updateThresholds(update: ThresholdUpdate): Promise<void> {

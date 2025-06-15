@@ -3,7 +3,7 @@ import { useEnvironmentStore } from "@/store/useEnvironmentStore"
 import { EnvironmentPanel } from "@/components/EnvironmentPanel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Building2, RefreshCw, AlertTriangle, CheckCircle } from "lucide-react"
+import { Building2, RefreshCw, AlertTriangle, CheckCircle, WifiOff } from "lucide-react"
 
 export function Dashboard() {
   const { environments, loading, error, fetchEnvironments } = useEnvironmentStore()
@@ -31,6 +31,14 @@ export function Dashboard() {
 
   const totalOptimal = safeEnvironments.reduce(
     (acc, env) => acc + Object.values(env.parameters).filter((p) => p.status === "optimal").length,
+    0,
+  )
+
+  const totalInactiveSensors = safeEnvironments.reduce(
+    (acc, env) => acc + Object.values(env.parameters).reduce(
+      (paramAcc, param) => paramAcc + param.sensors.filter((sensor) => !sensor.isActive).length,
+      0
+    ),
     0,
   )
 
@@ -84,7 +92,7 @@ export function Dashboard() {
         </div>
 
         {/* Stats Cards - Responsive Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
           {/* Ambienti Monitorati */}
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-xl p-4 sm:p-6 shadow-lg border-0">
             <div className="flex items-center justify-between mb-4">
@@ -131,6 +139,18 @@ export function Dashboard() {
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-red-800 dark:text-red-100 mb-1">{totalCritical}</div>
             <p className="text-xs text-red-600 dark:text-red-300">Immediate intervention</p>
+          </div>
+
+          {/* Sensori Inattivi */}
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl p-4 sm:p-6 shadow-lg border-0">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Inactive Sensors</h3>
+              <div className="p-2 bg-gray-500/20 rounded-lg">
+                <WifiOff className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-1">{totalInactiveSensors}</div>
+            <p className="text-xs text-gray-600 dark:text-gray-300">Sensors offline</p>
           </div>
         </div>
 

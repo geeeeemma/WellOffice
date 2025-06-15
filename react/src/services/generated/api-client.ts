@@ -63,6 +63,61 @@ export class WellOfficeApiClient {
     }
 
     /**
+     * @param hours (optional) 
+     * @return Success
+     */
+    historical(environmentId: string, parameterId: string, hours: number | undefined): Promise<HistoricalDataDto[]> {
+        let url_ = this.baseUrl + "/Dashboard/environments/{environmentId}/parameters/{parameterId}/historical?";
+        if (environmentId === undefined || environmentId === null)
+            throw new Error("The parameter 'environmentId' must be defined.");
+        url_ = url_.replace("{environmentId}", encodeURIComponent("" + environmentId));
+        if (parameterId === undefined || parameterId === null)
+            throw new Error("The parameter 'parameterId' must be defined.");
+        url_ = url_.replace("{parameterId}", encodeURIComponent("" + parameterId));
+        if (hours === null)
+            throw new Error("The parameter 'hours' cannot be null.");
+        else if (hours !== undefined)
+            url_ += "hours=" + encodeURIComponent("" + hours) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processHistorical(_response);
+        });
+    }
+
+    protected processHistorical(response: Response): Promise<HistoricalDataDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(HistoricalDataDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<HistoricalDataDto[]>(null as any);
+    }
+
+    /**
      * @return Success
      */
     parameterAll(): Promise<Parameter[]> {
@@ -630,7 +685,7 @@ export class WellOfficeApiClient {
     /**
      * @return Success
      */
-    withSensors2(): Promise<Room[]> {
+    withSensors2(): Promise<RoomWithSensorsDto[]> {
         let url_ = this.baseUrl + "/api/Room/with-sensors";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -646,7 +701,7 @@ export class WellOfficeApiClient {
         });
     }
 
-    protected processWithSensors2(response: Response): Promise<Room[]> {
+    protected processWithSensors2(response: Response): Promise<RoomWithSensorsDto[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -656,7 +711,7 @@ export class WellOfficeApiClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(Room.fromJS(item));
+                    result200!.push(RoomWithSensorsDto.fromJS(item));
             }
             else {
                 result200 = <any>null;
@@ -668,7 +723,7 @@ export class WellOfficeApiClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Room[]>(null as any);
+        return Promise.resolve<RoomWithSensorsDto[]>(null as any);
     }
 
     /**
@@ -938,7 +993,7 @@ export class WellOfficeApiClient {
     /**
      * @return Success
      */
-    sensorDataAll(): Promise<SensorData[]> {
+    sensorDataAllGET(): Promise<SensorData[]> {
         let url_ = this.baseUrl + "/api/SensorData";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -950,11 +1005,11 @@ export class WellOfficeApiClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processSensorDataAll(_response);
+            return this.processSensorDataAllGET(_response);
         });
     }
 
-    protected processSensorDataAll(response: Response): Promise<SensorData[]> {
+    protected processSensorDataAllGET(response: Response): Promise<SensorData[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -983,7 +1038,7 @@ export class WellOfficeApiClient {
      * @param body (optional) 
      * @return Success
      */
-    sensorDataPOST(body: SensorData | undefined): Promise<SensorData> {
+    sensorDataAllPOST(body: SensorDataRequestDto | undefined): Promise<SensorData[]> {
         let url_ = this.baseUrl + "/api/SensorData";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -999,18 +1054,25 @@ export class WellOfficeApiClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processSensorDataPOST(_response);
+            return this.processSensorDataAllPOST(_response);
         });
     }
 
-    protected processSensorDataPOST(response: Response): Promise<SensorData> {
+    protected processSensorDataAllPOST(response: Response): Promise<SensorData[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = SensorData.fromJS(resultData200);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SensorData.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -1018,13 +1080,13 @@ export class WellOfficeApiClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<SensorData>(null as any);
+        return Promise.resolve<SensorData[]>(null as any);
     }
 
     /**
      * @return Success
      */
-    sensorDataGET(id: string): Promise<SensorData> {
+    sensorData(id: string): Promise<SensorData> {
         let url_ = this.baseUrl + "/api/SensorData/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -1039,11 +1101,11 @@ export class WellOfficeApiClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processSensorDataGET(_response);
+            return this.processSensorData(_response);
         });
     }
 
-    protected processSensorDataGET(response: Response): Promise<SensorData> {
+    protected processSensorData(response: Response): Promise<SensorData> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1158,6 +1220,61 @@ export class WellOfficeApiClient {
             });
         }
         return Promise.resolve<SensorData[]>(null as any);
+    }
+
+    /**
+     * @param hours (optional) 
+     * @return Success
+     */
+    historical2(environmentId: string, parameterId: string, hours: number | undefined): Promise<HistoricalDataDto[]> {
+        let url_ = this.baseUrl + "/api/SensorData/environment/{environmentId}/parameter/{parameterId}/historical?";
+        if (environmentId === undefined || environmentId === null)
+            throw new Error("The parameter 'environmentId' must be defined.");
+        url_ = url_.replace("{environmentId}", encodeURIComponent("" + environmentId));
+        if (parameterId === undefined || parameterId === null)
+            throw new Error("The parameter 'parameterId' must be defined.");
+        url_ = url_.replace("{parameterId}", encodeURIComponent("" + parameterId));
+        if (hours === null)
+            throw new Error("The parameter 'hours' cannot be null.");
+        else if (hours !== undefined)
+            url_ += "hours=" + encodeURIComponent("" + hours) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processHistorical2(_response);
+        });
+    }
+
+    protected processHistorical2(response: Response): Promise<HistoricalDataDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(HistoricalDataDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<HistoricalDataDto[]>(null as any);
     }
 
     /**
@@ -1711,6 +1828,46 @@ export interface IEnvironmentSensorDto {
     isActive?: boolean;
 }
 
+export class HistoricalDataDto implements IHistoricalDataDto {
+    timestamp?: string | undefined;
+    value?: number;
+
+    constructor(data?: IHistoricalDataDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.timestamp = _data["timestamp"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): HistoricalDataDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new HistoricalDataDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["timestamp"] = this.timestamp;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface IHistoricalDataDto {
+    timestamp?: string | undefined;
+    value?: number;
+}
+
 export class OptimalRangeDto implements IOptimalRangeDto {
     min?: number;
     max?: number;
@@ -1754,7 +1911,7 @@ export interface IOptimalRangeDto {
 export class Parameter implements IParameter {
     id?: string;
     name?: string | undefined;
-    unitMeasure?: UnitMeasure;
+    unitMeasure?: string | undefined;
     sensors?: Sensor[] | undefined;
     thresholds?: Threshold[] | undefined;
 
@@ -1814,7 +1971,7 @@ export class Parameter implements IParameter {
 export interface IParameter {
     id?: string;
     name?: string | undefined;
-    unitMeasure?: UnitMeasure;
+    unitMeasure?: string | undefined;
     sensors?: Sensor[] | undefined;
     thresholds?: Threshold[] | undefined;
 }
@@ -1941,6 +2098,130 @@ export interface IRoom {
     ceilingHeight?: number;
     sensors?: Sensor[] | undefined;
     thresholds?: Threshold[] | undefined;
+}
+
+export class RoomSensorsForRequestDto implements IRoomSensorsForRequestDto {
+    roomId?: string | undefined;
+    sensors?: SensorForRoomDto[] | undefined;
+
+    constructor(data?: IRoomSensorsForRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.roomId = _data["roomId"];
+            if (Array.isArray(_data["sensors"])) {
+                this.sensors = [] as any;
+                for (let item of _data["sensors"])
+                    this.sensors!.push(SensorForRoomDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RoomSensorsForRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomSensorsForRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["roomId"] = this.roomId;
+        if (Array.isArray(this.sensors)) {
+            data["sensors"] = [];
+            for (let item of this.sensors)
+                data["sensors"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
+}
+
+export interface IRoomSensorsForRequestDto {
+    roomId?: string | undefined;
+    sensors?: SensorForRoomDto[] | undefined;
+}
+
+export class RoomWithSensorsDto implements IRoomWithSensorsDto {
+    id?: string | undefined;
+    name?: string | undefined;
+    sensors?: SensorInfoDto[] | undefined;
+    roomThresholds?: ThresholdForRoomDto[] | undefined;
+    parameterThresholds?: ThresholdForRoomDto[] | undefined;
+
+    constructor(data?: IRoomWithSensorsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            if (Array.isArray(_data["sensors"])) {
+                this.sensors = [] as any;
+                for (let item of _data["sensors"])
+                    this.sensors!.push(SensorInfoDto.fromJS(item));
+            }
+            if (Array.isArray(_data["roomThresholds"])) {
+                this.roomThresholds = [] as any;
+                for (let item of _data["roomThresholds"])
+                    this.roomThresholds!.push(ThresholdForRoomDto.fromJS(item));
+            }
+            if (Array.isArray(_data["parameterThresholds"])) {
+                this.parameterThresholds = [] as any;
+                for (let item of _data["parameterThresholds"])
+                    this.parameterThresholds!.push(ThresholdForRoomDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RoomWithSensorsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomWithSensorsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        if (Array.isArray(this.sensors)) {
+            data["sensors"] = [];
+            for (let item of this.sensors)
+                data["sensors"].push(item ? item.toJSON() : <any>undefined);
+        }
+        if (Array.isArray(this.roomThresholds)) {
+            data["roomThresholds"] = [];
+            for (let item of this.roomThresholds)
+                data["roomThresholds"].push(item ? item.toJSON() : <any>undefined);
+        }
+        if (Array.isArray(this.parameterThresholds)) {
+            data["parameterThresholds"] = [];
+            for (let item of this.parameterThresholds)
+                data["parameterThresholds"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
+}
+
+export interface IRoomWithSensorsDto {
+    id?: string | undefined;
+    name?: string | undefined;
+    sensors?: SensorInfoDto[] | undefined;
+    roomThresholds?: ThresholdForRoomDto[] | undefined;
+    parameterThresholds?: ThresholdForRoomDto[] | undefined;
 }
 
 export class Sensor implements ISensor {
@@ -2079,6 +2360,138 @@ export interface ISensorData {
     sensor?: Sensor;
 }
 
+export class SensorDataRequestDto implements ISensorDataRequestDto {
+    rooms?: RoomSensorsForRequestDto[] | undefined;
+
+    constructor(data?: ISensorDataRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["rooms"])) {
+                this.rooms = [] as any;
+                for (let item of _data["rooms"])
+                    this.rooms!.push(RoomSensorsForRequestDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SensorDataRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SensorDataRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.rooms)) {
+            data["rooms"] = [];
+            for (let item of this.rooms)
+                data["rooms"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
+}
+
+export interface ISensorDataRequestDto {
+    rooms?: RoomSensorsForRequestDto[] | undefined;
+}
+
+export class SensorForRoomDto implements ISensorForRoomDto {
+    id?: string | undefined;
+    value?: number;
+
+    constructor(data?: ISensorForRoomDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): SensorForRoomDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SensorForRoomDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface ISensorForRoomDto {
+    id?: string | undefined;
+    value?: number;
+}
+
+export class SensorInfoDto implements ISensorInfoDto {
+    id?: string | undefined;
+    name?: string | undefined;
+    type?: string | undefined;
+    unitMeasure?: string | undefined;
+
+    constructor(data?: ISensorInfoDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.type = _data["type"];
+            this.unitMeasure = _data["unitMeasure"];
+        }
+    }
+
+    static fromJS(data: any): SensorInfoDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SensorInfoDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["type"] = this.type;
+        data["unitMeasure"] = this.unitMeasure;
+        return data;
+    }
+}
+
+export interface ISensorInfoDto {
+    id?: string | undefined;
+    name?: string | undefined;
+    type?: string | undefined;
+    unitMeasure?: string | undefined;
+}
+
 export class Threshold implements IThreshold {
     id?: string;
     parameterId?: string;
@@ -2147,6 +2560,58 @@ export interface IThreshold {
     room?: Room;
 }
 
+export class ThresholdForRoomDto implements IThresholdForRoomDto {
+    sensorType?: string | undefined;
+    optimalMinValue?: string | undefined;
+    optimalMaxValue?: string | undefined;
+    acceptableMinValue?: string | undefined;
+    acceptableMaxValue?: string | undefined;
+
+    constructor(data?: IThresholdForRoomDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sensorType = _data["sensorType"];
+            this.optimalMinValue = _data["optimalMinValue"];
+            this.optimalMaxValue = _data["optimalMaxValue"];
+            this.acceptableMinValue = _data["acceptableMinValue"];
+            this.acceptableMaxValue = _data["acceptableMaxValue"];
+        }
+    }
+
+    static fromJS(data: any): ThresholdForRoomDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ThresholdForRoomDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sensorType"] = this.sensorType;
+        data["optimalMinValue"] = this.optimalMinValue;
+        data["optimalMaxValue"] = this.optimalMaxValue;
+        data["acceptableMinValue"] = this.acceptableMinValue;
+        data["acceptableMaxValue"] = this.acceptableMaxValue;
+        return data;
+    }
+}
+
+export interface IThresholdForRoomDto {
+    sensorType?: string | undefined;
+    optimalMinValue?: string | undefined;
+    optimalMaxValue?: string | undefined;
+    acceptableMinValue?: string | undefined;
+    acceptableMaxValue?: string | undefined;
+}
+
 export class ThresholdsDto implements IThresholdsDto {
     optimal?: OptimalRangeDto;
     borderline?: BorderlineRangeDto;
@@ -2185,20 +2650,6 @@ export class ThresholdsDto implements IThresholdsDto {
 export interface IThresholdsDto {
     optimal?: OptimalRangeDto;
     borderline?: BorderlineRangeDto;
-}
-
-export enum UnitMeasure {
-    _0 = 0,
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-    _4 = 4,
-    _5 = 5,
-    _6 = 6,
-    _7 = 7,
-    _8 = 8,
-    _9 = 9,
-    _10 = 10,
 }
 
 export class WeatherForecast implements IWeatherForecast {

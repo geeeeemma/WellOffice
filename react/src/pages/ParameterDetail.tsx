@@ -84,9 +84,9 @@ export function ParameterDetail() {
   }
 
   const statusLabels = {
-    optimal: "Ottimale",
-    borderline: "Attenzione",
-    critical: "Critico",
+    optimal: "Optimal",
+    borderline: "Warning",
+    critical: "Critical",
   }
 
   const handleApplySuggestion = async (suggestionId: string, suggestionTitle: string) => {
@@ -112,7 +112,7 @@ export function ParameterDetail() {
           <div className="flex items-center gap-4 min-w-0 flex-1">
             <Button variant="outline" onClick={() => navigate(-1)} className="flex-shrink-0">
               <ArrowLeft className="h-4 w-4" />
-              <span className="sr-only">Indietro</span>
+              <span className="sr-only">Back</span>
             </Button>
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold truncate">{parameter.name}</h1>
@@ -123,7 +123,7 @@ export function ParameterDetail() {
           </div>
           <Button onClick={() => fetchHistoricalData(environmentId, parameterId, 168)} className="w-full sm:w-auto">
             <RefreshCw className="h-4 w-4 mr-2" />
-            Aggiorna
+            Refresh
           </Button>
         </div>
 
@@ -131,7 +131,7 @@ export function ParameterDetail() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-medium">Valore Attuale</CardTitle>
+              <CardTitle className="text-sm font-medium">Current Value</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl sm:text-3xl font-bold">
@@ -168,7 +168,7 @@ export function ParameterDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-medium">Range Ottimale</CardTitle>
+              <CardTitle className="text-sm font-medium">Optimal Range</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-green-600">
@@ -180,7 +180,7 @@ export function ParameterDetail() {
 
           <Card className="sm:col-span-2 lg:col-span-1">
             <CardHeader>
-              <CardTitle className="text-sm font-medium">Range Accettabile</CardTitle>
+              <CardTitle className="text-sm font-medium">Acceptable Range</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-yellow-600">
@@ -194,7 +194,7 @@ export function ParameterDetail() {
         {/* Historical Chart */}
         <HistoricalChart
           data={data}
-          title={`${parameter.name} - Ultimi 7 giorni`}
+          title={`${parameter.name} - Last 7 days`}
           unit={parameter.unit}
           color={parameter.status === "critical" ? "#ef4444" : parameter.status === "borderline" ? "#f59e0b" : "#10b981"}
         />
