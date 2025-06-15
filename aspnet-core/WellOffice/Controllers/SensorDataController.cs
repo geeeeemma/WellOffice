@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WellOffice.Data;
 using WellOffice.DTOs;
 using WellOffice.Models;
 using WellOffice.Services;
@@ -11,10 +12,14 @@ namespace WellOffice.Controllers;
 public class SensorDataController : ControllerBase
 {
     private readonly ISensorDataService _sensorDataService;
+    private readonly ISensorService _sensorService;
+    private readonly WellOfficeContext _context;
 
-    public SensorDataController(ISensorDataService sensorDataService)
+    public SensorDataController(ISensorDataService sensorDataService, ISensorService sensorService, WellOfficeContext context)
     {
         _sensorDataService = sensorDataService;
+        _sensorService = sensorService;
+        _context = context;
     }
 
     // GET: api/SensorData
@@ -83,6 +88,8 @@ public class SensorDataController : ControllerBase
     public async Task<ActionResult<IEnumerable<SensorData>>> CreateSensorData(RoomSensorsForRequestDto sensorData)
     {
         var sensorDataList = await ConvertToSensorDataListAsync(sensorData);
+
+
         try
         {
             foreach (var data in sensorDataList)
@@ -108,7 +115,7 @@ public class SensorDataController : ControllerBase
                 throw new InvalidOperationException($"Invalid sensor ID format: {sensorDto.Id}");
             }
 
-            var sensor = await _sensorDataService.GetByIdAsync(sensorId);
+            var sensor = await _sensorService.GetByIdAsync(sensorId);
             if (sensor == null)
             {
                 throw new InvalidOperationException($"Sensor {sensorDto.Id} not found or inactive.");
@@ -118,7 +125,7 @@ public class SensorDataController : ControllerBase
             {
                 Id = Guid.NewGuid(),
                 SensorId = sensorId,
-                Value = sensorDto.Value,
+                Value = (decimal)(sensorDto?.Value ?? 0),
                 DetectionDate = DateTime.UtcNow
             });
         }

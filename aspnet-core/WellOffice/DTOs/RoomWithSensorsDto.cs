@@ -18,6 +18,7 @@
         public string Name { get; set; }
         public string Type { get; set; }
         public string UnitMeasure { get; set; }
+        public decimal? LastValue { get;set; }
     }
 
     public class ThresholdForRoomDto
