@@ -62,7 +62,6 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
   const { generateSuggestions, loading, error } = useAIService()
   const [suggestions, setSuggestions] = useState<AIGeneratedSuggestion[]>([])
   const [overallAssessment, setOverallAssessment] = useState<any>(null)
-  const [applyingSuggestion, setApplyingSuggestion] = useState<string | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -90,21 +89,6 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
       setSuggestions(response.suggestions)
       setOverallAssessment(response.overallAssessment)
     }
-  }
-
-  const handleApplySuggestion = async (suggestion: AIGeneratedSuggestion) => {
-    setApplyingSuggestion(suggestion.id)
-
-    // Simula l'applicazione del suggerimento
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    toast({
-              title: "AI Suggestion Applied!",
-      description: `"${suggestion.title}" has been applied successfully.`,
-      duration: 5000,
-    })
-
-    setApplyingSuggestion(null)
   }
 
   const getSeason = (date: Date): string => {

@@ -1,9 +1,13 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Carica le variabili d'ambiente per la modalità corrente
+  const env = loadEnv(mode, process.cwd(), '')
+  
+  return {
   plugins: [react()],
   resolve: {
     alias: {
@@ -11,9 +15,9 @@ export default defineConfig({
       '@/src': path.resolve(__dirname, './src'),
     },
   },
-  server: {
-    port: 3000,
-    open: true,
+    server: {
+      port: parseInt(env.VITE_PORT) || 3000,
+      open: mode === 'development',
     // https: {}, // Disabilitato temporaneamente per risolvere ERR_SSL_VERSION_OR_CIPHER_MISMATCH
     
     // Opzione 1: Configurazione HTTPS semplice (prova questa se hai bisogno di HTTPS)
@@ -35,8 +39,15 @@ export default defineConfig({
     //   ].join(':'),
     // },
   },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-  },
-}) 
+    build: {
+      outDir: 'dist',
+      sourcemap: mode === 'development',
+      minify: mode === 'production',
+    },
+    define: {
+      // Espone le variabili d'ambiente al client
+      __DEV__: mode === 'development',
+      __PROD__: mode === 'production',
+    },
+  }
+})

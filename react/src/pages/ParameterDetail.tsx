@@ -19,7 +19,6 @@ export function ParameterDetail() {
   const [environment, setEnvironment] = useState<Environment | null>(null)
   const [parameter, setParameter] = useState<EnvironmentParameter | null>(null)
   const [loading, setLoading] = useState(true)
-  const [applyingSuggestion, setApplyingSuggestion] = useState<string | null>(null)
   const { toast } = useToast()
 
   const environmentId = params.id as string
@@ -74,9 +73,6 @@ export function ParameterDetail() {
   // Calcola trend
   const trend = data.length >= 2 ? data[data.length - 1].value - data[data.length - 2].value : 0
 
-  // Rimosso il sistema di suggerimenti per ora
-  const parameterSuggestions: any[] = []
-
   const statusColors = {
     optimal: "bg-green-100 text-green-800 border-green-200",
     borderline: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -87,21 +83,6 @@ export function ParameterDetail() {
     optimal: "Optimal",
     borderline: "Warning",
     critical: "Critical",
-  }
-
-  const handleApplySuggestion = async (suggestionId: string, suggestionTitle: string) => {
-    setApplyingSuggestion(suggestionId)
-
-    // Simula l'applicazione del suggerimento
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    toast({
-      title: "Suggestion Applied!",
-      description: `"${suggestionTitle}" has been applied successfully.`,
-      duration: 4000,
-    })
-
-    setApplyingSuggestion(null)
   }
 
   return (

@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useEnvironmentStore } from "@/store/useEnvironmentStore"
 import { EnvironmentPanel } from "@/components/EnvironmentPanel"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Building2, RefreshCw, AlertTriangle, CheckCircle, WifiOff } from "lucide-react"
 

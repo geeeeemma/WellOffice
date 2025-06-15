@@ -79,7 +79,7 @@ export class WellOfficeApiService {
   /**
    * Ottiene una stanza per ID
    */
-  async getRoom(id: string) {
+  async getRoom() {
     try {
       // return await this.client.roomsGET2(id)
       throw new Error('Client API non ancora generato. Esegui: npm run generate-api')
@@ -91,7 +91,7 @@ export class WellOfficeApiService {
   /**
    * Crea una nuova stanza
    */
-  async createRoom(roomData: any) {
+  async createRoom() {
     try {
       // return await this.client.roomsPOST(roomData)
       throw new Error('Client API non ancora generato. Esegui: npm run generate-api')
@@ -103,7 +103,7 @@ export class WellOfficeApiService {
   /**
    * Aggiorna una stanza
    */
-  async updateRoom(id: string, roomData: any) {
+  async updateRoom() {
     try {
       // return await this.client.roomsPUT(id, roomData)
       throw new Error('Client API non ancora generato. Esegui: npm run generate-api')
@@ -115,7 +115,7 @@ export class WellOfficeApiService {
   /**
    * Elimina una stanza
    */
-  async deleteRoom(id: string) {
+  async deleteRoom() {
     try {
       // return await this.client.roomsDELETE(id)
       throw new Error('Client API non ancora generato. Esegui: npm run generate-api')
@@ -143,7 +143,7 @@ export class WellOfficeApiService {
   /**
    * Ottiene i sensori di una stanza
    */
-  async getSensorsByRoom(roomId: string) {
+  async getSensorsByRoom() {
     try {
       // return await this.client.sensorsGET2(roomId)
       throw new Error('Client API non ancora generato. Esegui: npm run generate-api')
@@ -159,7 +159,7 @@ export class WellOfficeApiService {
   /**
    * Ottiene i dati dei sensori per una stanza
    */
-  async getSensorData(roomId: string, parameterId?: string, hours?: number) {
+  async getSensorData() {
     try {
       // return await this.client.sensorDataGET(roomId, parameterId, hours)
       throw new Error('Client API non ancora generato. Esegui: npm run generate-api')
@@ -175,7 +175,7 @@ export class WellOfficeApiService {
   /**
    * Ottiene le soglie per una stanza
    */
-  async getThresholds(roomId: string) {
+  async getThresholds() {
     try {
       // return await this.client.thresholdsGET(roomId)
       throw new Error('Client API non ancora generato. Esegui: npm run generate-api')
@@ -187,7 +187,7 @@ export class WellOfficeApiService {
   /**
    * Aggiorna le soglie
    */
-  async updateThreshold(id: string, thresholdData: any) {
+  async updateThreshold() {
     try {
       // return await this.client.thresholdsPUT(id, thresholdData)
       throw new Error('Client API non ancora generato. Esegui: npm run generate-api')
@@ -219,7 +219,7 @@ export class WellOfficeApiService {
   /**
    * Ottiene le azioni di rimedio
    */
-  async getRemediationActions(sensorId?: string) {
+  async getRemediationActions() {
     try {
       // return await this.client.remediationActionsGET(sensorId)
       throw new Error('Client API non ancora generato. Esegui: npm run generate-api')
@@ -231,7 +231,7 @@ export class WellOfficeApiService {
   /**
    * Crea una nuova azione di rimedio
    */
-  async createRemediationAction(actionData: any) {
+  async createRemediationAction() {
     try {
       // return await this.client.remediationActionsPOST(actionData)
       throw new Error('Client API non ancora generato. Esegui: npm run generate-api')

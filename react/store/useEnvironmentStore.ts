@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { Environment, HistoricalData, Suggestion, ThresholdUpdate, SensorUpdate } from "@/types/environment"
+import type { Environment, HistoricalData, ThresholdUpdate, SensorUpdate } from "@/types/environment"
 import { apiService } from "@/services/api"
 
 interface EnvironmentStore {
@@ -16,7 +16,7 @@ interface EnvironmentStore {
   updateSensor: (update: SensorUpdate) => Promise<void>
 }
 
-export const useEnvironmentStore = create<EnvironmentStore>((set, get) => ({
+export const useEnvironmentStore = create<EnvironmentStore>((set) => ({
   environments: [],
   historicalData: {},
   loading: false,

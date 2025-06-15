@@ -4,9 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "vite --mode development",
+    "build": "node scripts/check-env.js production && tsc --noEmit && vite build --mode production",
+    "build:dev": "node scripts/check-env.js development && tsc --noEmit && vite build --mode development",
+    "build:skip-check": "node scripts/check-env.js production && vite build --mode production",
     "preview": "vite preview",
+    "preview:prod": "vite preview --mode production",
+    "check-env": "node scripts/check-env.js",
+    "check-env:prod": "node scripts/check-env.js production",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "generate-api": "nswag run nswag.json",
     "generate-api:watch": "nswag run nswag.json --watch"

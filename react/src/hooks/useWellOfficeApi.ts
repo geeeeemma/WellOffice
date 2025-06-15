@@ -75,33 +75,33 @@ export function useWellOfficeApi() {
     )
   }, [executeApiCall])
 
-  const getRoom = useCallback((id: string, onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
+  const getRoom = useCallback((onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
     return executeApiCall(
-      () => wellOfficeApiService.getRoom(id),
+      () => wellOfficeApiService.getRoom(),
       onSuccess,
       onError
     )
   }, [executeApiCall])
 
-  const createRoom = useCallback((roomData: any, onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
+  const createRoom = useCallback((onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
     return executeApiCall(
-      () => wellOfficeApiService.createRoom(roomData),
+      () => wellOfficeApiService.createRoom(),
       onSuccess,
       onError
     )
   }, [executeApiCall])
 
-  const updateRoom = useCallback((id: string, roomData: any, onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
+  const updateRoom = useCallback((onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
     return executeApiCall(
-      () => wellOfficeApiService.updateRoom(id, roomData),
+      () => wellOfficeApiService.updateRoom(),
       onSuccess,
       onError
     )
   }, [executeApiCall])
 
-  const deleteRoom = useCallback((id: string, onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
+  const deleteRoom = useCallback((onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
     return executeApiCall(
-      () => wellOfficeApiService.deleteRoom(id),
+      () => wellOfficeApiService.deleteRoom(),
       onSuccess,
       onError
     )
@@ -119,9 +119,9 @@ export function useWellOfficeApi() {
     )
   }, [executeApiCall])
 
-  const getSensorsByRoom = useCallback((roomId: string, onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
+  const getSensorsByRoom = useCallback((onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
     return executeApiCall(
-      () => wellOfficeApiService.getSensorsByRoom(roomId),
+      () => wellOfficeApiService.getSensorsByRoom(),
       onSuccess,
       onError
     )
@@ -132,14 +132,11 @@ export function useWellOfficeApi() {
   // ============================================
 
   const getSensorData = useCallback((
-    roomId: string, 
-    parameterId?: string, 
-    hours?: number,
     onSuccess?: (data: any) => void, 
     onError?: (error: Error) => void
   ) => {
     return executeApiCall(
-      () => wellOfficeApiService.getSensorData(roomId, parameterId, hours),
+      () => wellOfficeApiService.getSensorData(),
       onSuccess,
       onError
     )
@@ -149,22 +146,20 @@ export function useWellOfficeApi() {
   // METODI THRESHOLD API
   // ============================================
 
-  const getThresholds = useCallback((roomId: string, onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
+  const getThresholds = useCallback((onSuccess?: (data: any) => void, onError?: (error: Error) => void) => {
     return executeApiCall(
-      () => wellOfficeApiService.getThresholds(roomId),
+      () => wellOfficeApiService.getThresholds(),
       onSuccess,
       onError
     )
   }, [executeApiCall])
 
   const updateThreshold = useCallback((
-    id: string, 
-    thresholdData: any, 
     onSuccess?: (data: any) => void, 
     onError?: (error: Error) => void
   ) => {
     return executeApiCall(
-      () => wellOfficeApiService.updateThreshold(id, thresholdData),
+      () => wellOfficeApiService.updateThreshold(),
       onSuccess,
       onError
     )
@@ -187,24 +182,22 @@ export function useWellOfficeApi() {
   // ============================================
 
   const getRemediationActions = useCallback((
-    sensorId?: string, 
     onSuccess?: (data: any) => void, 
     onError?: (error: Error) => void
   ) => {
     return executeApiCall(
-      () => wellOfficeApiService.getRemediationActions(sensorId),
+      () => wellOfficeApiService.getRemediationActions(),
       onSuccess,
       onError
     )
   }, [executeApiCall])
 
   const createRemediationAction = useCallback((
-    actionData: any, 
     onSuccess?: (data: any) => void, 
     onError?: (error: Error) => void
   ) => {
     return executeApiCall(
-      () => wellOfficeApiService.createRemediationAction(actionData),
+      () => wellOfficeApiService.createRemediationAction(),
       onSuccess,
       onError
     )

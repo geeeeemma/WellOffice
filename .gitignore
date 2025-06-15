@@ -54,3 +54,13 @@ TestResult.xml
 nunit-*.xml
 /.vs
 /aspnet-core/.vs
+react/.env
+react/dist/index.html
+react/dist/logo.svg
+react/dist/placeholder-logo.png
+react/dist/placeholder-logo.svg
+react/dist/placeholder-user.jpg
+react/dist/placeholder.jpg
+react/dist/placeholder.svg
+react/dist/assets/index-AiAh_dz_.js
+react/dist/assets/index-By4DDPfh.css
