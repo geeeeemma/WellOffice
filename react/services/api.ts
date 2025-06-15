@@ -6,6 +6,7 @@ const API_BASE_URL = config.apiUrl
 
 class ApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    console.log(`${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         "Content-Type": "application/json",
