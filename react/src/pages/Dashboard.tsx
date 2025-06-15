@@ -16,22 +16,25 @@ export function Dashboard() {
     await Promise.all([fetchEnvironments()])
   }
 
-  const totalCritical = environments.reduce(
+  // Protezione per assicurare che environments sia un array
+  const safeEnvironments = Array.isArray(environments) ? environments : []
+
+  const totalCritical = safeEnvironments.reduce(
     (acc, env) => acc + Object.values(env.parameters).filter((p) => p.status === "critical").length,
     0,
   )
 
-  const totalWarning = environments.reduce(
+  const totalWarning = safeEnvironments.reduce(
     (acc, env) => acc + Object.values(env.parameters).filter((p) => p.status === "borderline").length,
     0,
   )
 
-  const totalOptimal = environments.reduce(
+  const totalOptimal = safeEnvironments.reduce(
     (acc, env) => acc + Object.values(env.parameters).filter((p) => p.status === "optimal").length,
     0,
   )
 
-  if (loading && environments.length === 0) {
+  if (loading && safeEnvironments.length === 0) {
     return (
       <div className="container mx-auto p-4 sm:p-6">
         <div className="flex items-center justify-center h-64">
@@ -48,7 +51,7 @@ export function Dashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-800 dark:text-red-200">
               <AlertTriangle className="h-5 w-5" />
-              <p>Errore nel caricamento dei dati: {error}</p>
+              <p>Error loading data: {error}</p>
             </div>
           </CardContent>
         </Card>
@@ -67,7 +70,7 @@ export function Dashboard() {
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">WellOffice Dashboard</h1>
-              <p className="text-white/90 text-sm sm:text-base">Monitoraggio comfort ambientale in tempo reale</p>
+              <p className="text-white/90 text-sm sm:text-base">Real-time environmental comfort monitoring</p>
             </div>
             <Button
               onClick={handleRefreshAll}
@@ -75,7 +78,7 @@ export function Dashboard() {
               className="bg-white/20 hover:bg-white/30 text-white border-0 w-full sm:w-auto"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-              Aggiorna Tutto
+              Refresh All
             </Button>
           </div>
         </div>
@@ -85,49 +88,49 @@ export function Dashboard() {
           {/* Ambienti Monitorati */}
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-xl p-4 sm:p-6 shadow-lg border-0">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-gray-900 dark:text-blue-100">Ambienti Monitorati</h3>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-blue-100">Monitored Environments</h3>
               <div className="p-2 bg-blue-600/30 rounded-lg">
                 <Building2 className="h-5 w-5 text-blue-800 dark:text-blue-200" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-blue-800 dark:text-blue-100 mb-1">{environments.length}</div>
-            <p className="text-xs text-blue-600 dark:text-blue-300">Spazi di lavoro attivi</p>
+            <div className="text-2xl sm:text-3xl font-bold text-blue-800 dark:text-blue-100 mb-1">{safeEnvironments.length}</div>
+            <p className="text-xs text-blue-600 dark:text-blue-300">Active workspaces</p>
           </div>
 
           {/* Parametri Ottimali */}
           <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-xl p-4 sm:p-6 shadow-lg border-0">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-green-800 dark:text-green-100">Parametri Ottimali</h3>
+              <h3 className="text-sm font-bold text-green-800 dark:text-green-100">Optimal Parameters</h3>
               <div className="p-2 bg-green-500/20 rounded-lg">
                 <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-300" />
               </div>
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-green-800 dark:text-green-100 mb-1">{totalOptimal}</div>
-            <p className="text-xs text-green-600 dark:text-green-300">Valori nella norma</p>
+            <p className="text-xs text-green-600 dark:text-green-300">Values within normal range</p>
           </div>
 
           {/* Attenzioni */}
           <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 rounded-xl p-4 sm:p-6 shadow-lg border-0">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-yellow-800 dark:text-yellow-100">Attenzioni</h3>
+              <h3 className="text-sm font-bold text-yellow-800 dark:text-yellow-100">Warnings</h3>
               <div className="p-2 bg-yellow-500/20 rounded-lg">
                 <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-300" />
               </div>
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-yellow-800 dark:text-yellow-100 mb-1">{totalWarning}</div>
-            <p className="text-xs text-yellow-600 dark:text-yellow-300">Richiedono monitoraggio</p>
+            <p className="text-xs text-yellow-600 dark:text-yellow-300">Require monitoring</p>
           </div>
 
           {/* Critici */}
           <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900 dark:to-red-800 rounded-xl p-4 sm:p-6 shadow-lg border-0">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-red-800 dark:text-red-100">Critici</h3>
+              <h3 className="text-sm font-bold text-red-800 dark:text-red-100">Critical</h3>
               <div className="p-2 bg-red-500/20 rounded-lg">
                 <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-300" />
               </div>
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-red-800 dark:text-red-100 mb-1">{totalCritical}</div>
-            <p className="text-xs text-red-600 dark:text-red-300">Intervento immediato</p>
+            <p className="text-xs text-red-600 dark:text-red-300">Immediate intervention</p>
           </div>
         </div>
 
@@ -138,10 +141,10 @@ export function Dashboard() {
               <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-              Ambienti Monitorati
+              Monitored Environments
             </h2>
           </div>
-          {environments.map((environment) => (
+          {safeEnvironments.map((environment) => (
             <EnvironmentPanel key={environment.id} environment={environment} />
           ))}
         </div>

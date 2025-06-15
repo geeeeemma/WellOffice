@@ -89,7 +89,7 @@ export function EnvironmentPanel({ environment }: EnvironmentPanelProps) {
                 )}
                 {warningCount > 0 && (
                   <Badge className="bg-yellow-500/20 text-yellow-100 border-yellow-400/30 backdrop-blur-sm text-xs">
-                    {warningCount} Attenzione
+                    {warningCount} Warning
                   </Badge>
                 )}
                 {criticalCount > 0 && (

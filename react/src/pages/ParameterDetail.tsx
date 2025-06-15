@@ -61,7 +61,7 @@ export function ParameterDetail() {
       <div className="container mx-auto p-4 sm:p-6">
         <Card className="border-red-200 bg-red-50">
           <CardContent className="pt-6">
-            <p className="text-red-800">Parametro non trovato</p>
+                          <p className="text-red-800">Parameter not found</p>
           </CardContent>
         </Card>
       </div>
@@ -96,8 +96,8 @@ export function ParameterDetail() {
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
     toast({
-      title: "Suggerimento Applicato!",
-      description: `"${suggestionTitle}" è stato applicato con successo.`,
+      title: "Suggestion Applied!",
+      description: `"${suggestionTitle}" has been applied successfully.`,
       duration: 4000,
     })
 
@@ -141,7 +141,7 @@ export function ParameterDetail() {
                     <span className="text-lg font-normal text-muted-foreground ml-1">{parameter.unit}</span>
                   </>
                 ) : (
-                  <span className="text-muted-foreground">Sensore offline</span>
+                  <span className="text-muted-foreground">Sensor offline</span>
                 )}
               </div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-2">

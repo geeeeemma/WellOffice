@@ -42,8 +42,8 @@ export function SuggestionsPanel({ suggestions }: SuggestionsPanelProps) {
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
             <Info className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Tutti i parametri sono ottimali!</p>
-            <p className="text-sm">Non ci sono suggerimenti al momento.</p>
+                    <p>All parameters are optimal!</p>
+        <p className="text-sm">No suggestions at the moment.</p>
           </div>
         </CardContent>
       </Card>
@@ -55,7 +55,7 @@ export function SuggestionsPanel({ suggestions }: SuggestionsPanelProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5" />
-          Suggerimenti ({suggestions.length})
+                      Suggestions ({suggestions.length})
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -72,7 +72,7 @@ export function SuggestionsPanel({ suggestions }: SuggestionsPanelProps) {
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium">{suggestion.title}</h4>
                   <Badge variant="outline" className={cn(suggestionBadgeColors[suggestion.type])}>
-                    {suggestion.type === "critical" ? "Critico" : suggestion.type === "warning" ? "Attenzione" : "Info"}
+                    {suggestion.type === "critical" ? "Critical" : suggestion.type === "warning" ? "Warning" : "Info"}
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">{suggestion.description}</p>

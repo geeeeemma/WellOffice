@@ -55,16 +55,16 @@ export function Settings() {
       await apiService.updateThresholds(update)
 
       toast({
-        title: "Soglie Aggiornate",
-        description: `Le soglie per ${parameter.name} sono state salvate con successo.`,
+                  title: "Thresholds Updated",
+          description: `Thresholds for ${parameter.name} have been saved successfully.`,
       })
 
       // Refresh data
       await fetchEnvironments()
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiornare le soglie. Riprova più tardi.",
+          } catch (error) {
+        toast({
+          title: "Error",
+          description: "Unable to update thresholds. Please try again later.",
         variant: "destructive",
       })
     } finally {
@@ -91,16 +91,16 @@ export function Settings() {
       await apiService.updateSensor(update)
 
       toast({
-        title: "Sensore Aggiornato",
-        description: `Il sensore è stato ${isActive ? "attivato" : "disattivato"} con successo.`,
+                  title: "Sensor Updated",
+        description: `Sensor has been ${isActive ? "activated" : "deactivated"} successfully.`,
       })
 
       // Refresh data
       await fetchEnvironments()
     } catch (error) {
       toast({
-        title: "Errore",
-        description: "Impossibile aggiornare il sensore. Riprova più tardi.",
+        title: "Error",
+        description: "Unable to update sensor. Please try again later.",
         variant: "destructive",
       })
     } finally {
@@ -129,8 +129,8 @@ export function Settings() {
           <div className="relative z-10 flex items-center gap-4">
             
             <div>
-              <h1 className="text-4xl font-bold mb-2">Gestione Parametri</h1>
-              <p className="text-gray-100 text-lg">Configura soglie e sensori per ogni ambiente</p>
+              <h1 className="text-4xl font-bold mb-2">Parameter Management</h1>
+              <p className="text-gray-100 text-lg">Configure thresholds and sensors for each environment</p>
             </div>
           </div>
         </div>
@@ -159,7 +159,7 @@ export function Settings() {
                       </div>
                       {parameter.name}
                       <Badge variant={parameter.isActive ? "default" : "secondary"}>
-                        {parameter.isActive ? "Attivo" : "Inattivo"}
+                        {parameter.isActive ? "Active" : "Inactive"}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
@@ -169,7 +169,7 @@ export function Settings() {
                     <div className="space-y-4">
                       <h4 className="font-semibold text-lg flex items-center gap-2">
                         <Sliders className="h-4 w-4" />
-                        Configurazione Soglie
+                        Threshold Configuration
                       </h4>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

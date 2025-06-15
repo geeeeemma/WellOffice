@@ -41,9 +41,9 @@ const statusStyles = {
 }
 
 const statusLabels = {
-  optimal: "Ottimale",
-  borderline: "Attenzione",
-  critical: "Critico",
+  optimal: "Optimal",
+  borderline: "Warning",
+  critical: "Critical",
 }
 
 export function ParameterCard({ parameter, onClick }: ParameterCardProps) {
@@ -126,7 +126,7 @@ export function ParameterCard({ parameter, onClick }: ParameterCardProps) {
             <div className="space-y-1 sm:space-y-2">
               <div className="flex items-center gap-1 sm:gap-2">
                 <Zap className="h-2 w-2 sm:h-3 sm:w-3 text-green-500 flex-shrink-0" />
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Range ottimale</span>
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Optimal range</span>
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-black/20 rounded-lg px-2 py-1 sm:px-3 sm:py-2">
                 {parameter.thresholds.optimal.min}-{parameter.thresholds.optimal.max} {parameter.unit}

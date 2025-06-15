@@ -35,9 +35,9 @@ const priorityColors = {
 }
 
 const priorityLabels = {
-  1: "Critico",
-  2: "Importante",
-  3: "Raccomandato",
+  1: "Critical",
+      2: "Important",
+    3: "Recommended",
 }
 
 const typeIcons = {
@@ -72,8 +72,8 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
   const loadAISuggestions = async () => {
     const now = new Date()
     const context = {
-      timeOfDay: now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }),
-      dayOfWeek: now.toLocaleDateString("it-IT", { weekday: "long" }),
+          timeOfDay: now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+    dayOfWeek: now.toLocaleDateString("en-US", { weekday: "long" }),
       season: getSeason(now),
       occupancyPattern: getOccupancyPattern(now),
     }
@@ -99,8 +99,8 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
     toast({
-      title: "Suggerimento AI Applicato!",
-      description: `"${suggestion.title}" è stato applicato con successo.`,
+              title: "AI Suggestion Applied!",
+      description: `"${suggestion.title}" has been applied successfully.`,
       duration: 5000,
     })
 
@@ -109,10 +109,10 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
 
   const getSeason = (date: Date): string => {
     const month = date.getMonth() + 1
-    if (month >= 3 && month <= 5) return "primavera"
-    if (month >= 6 && month <= 8) return "estate"
-    if (month >= 9 && month <= 11) return "autunno"
-    return "inverno"
+          if (month >= 3 && month <= 5) return "spring"
+      if (month >= 6 && month <= 8) return "summer"
+    if (month >= 9 && month <= 11) return "autumn"
+    return "winter"
   }
 
   const getOccupancyPattern = (date: Date): string => {
@@ -130,9 +130,9 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-3 text-center sm:text-left">
             <Brain className="h-8 w-8 text-purple-600 animate-pulse" />
             <div>
-              <p className="text-lg font-semibold text-purple-700 dark:text-purple-300">IA sta analizzando i dati...</p>
+              <p className="text-lg font-semibold text-purple-700 dark:text-purple-300">AI is analyzing data...</p>
               <p className="text-sm text-purple-600 dark:text-purple-400">
-                Generazione suggerimenti intelligenti in corso
+                                  Generating intelligent suggestions in progress
               </p>
             </div>
             <RefreshCw className="h-6 w-6 text-purple-600 animate-spin" />
@@ -171,9 +171,9 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
       <Card className="border-0 shadow-xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950">
         <CardContent className="p-4 sm:p-8 text-center">
           <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-green-800 dark:text-green-200 mb-2">Parametro Ottimale!</h3>
+          <h3 className="text-xl font-semibold text-green-800 dark:text-green-200 mb-2">Parameter Optimal!</h3>
           <p className="text-green-600 dark:text-green-400">
-            L'IA non ha rilevato problemi che richiedono interventi immediati.
+                          AI has not detected any issues requiring immediate intervention.
           </p>
         </CardContent>
       </Card>
@@ -212,12 +212,12 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
                 } text-white border-0 text-xs sm:text-sm`}
               >
                 {overallAssessment.status === "excellent"
-                  ? "Eccellente"
+                                      ? "Excellent"
                   : overallAssessment.status === "good"
-                    ? "Buono"
+                                          ? "Good"
                     : overallAssessment.status === "concerning"
-                      ? "Da monitorare"
-                      : "Critico"}
+                                              ? "Monitor"
+                      : "Critical"}
               </Badge>
             </div>
 
@@ -281,7 +281,7 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
 
                       <div className="flex items-center gap-1">
                         <Wrench className="h-4 w-4 flex-shrink-0" />
-                        <span className="text-gray-500">Difficoltà:</span>
+                        <span className="text-gray-500">Difficulty:</span>
                         <span className={difficultyColors[suggestion.implementationDifficulty]}>
                           {suggestion.implementationDifficulty === "easy"
                             ? "Facile"

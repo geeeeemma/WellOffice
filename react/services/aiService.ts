@@ -118,7 +118,7 @@ Analizza i seguenti dati e genera suggerimenti specifici e attuabili.
 ## PARAMETRO TARGET: ${targetParameter.name}
 - Valore attuale: ${targetParameter.value} ${targetParameter.unit}
 - Status: ${targetParameter.status || "N/A"}
-- Sensore attivo: ${targetParameter.isActive ? "Sì" : "No"}
+    - Sensor active: ${targetParameter.isActive ? "Yes" : "No"}
 - Soglia ottimale: ${targetParameter.thresholds.optimal.min}-${targetParameter.thresholds.optimal.max} ${targetParameter.unit}
 - Soglia accettabile: ${targetParameter.thresholds.borderline.min}-${targetParameter.thresholds.borderline.max} ${targetParameter.unit}
 

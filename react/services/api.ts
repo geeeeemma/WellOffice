@@ -24,10 +24,49 @@ class ApiService {
 
   async getEnvironments(): Promise<Environment[]> {
     try {
-      const response = await this.request<Environment[]>('/dashboard/environments')
-      return response
+      const response = await this.request<any>('/dashboard/environments')
+      console.log('🔍 API Response data:', response)
+      
+      // Gestisce la struttura .NET con $values
+      let environments: Environment[]
+      
+      if (response && response.$values && Array.isArray(response.$values)) {
+        // Struttura .NET con ReferenceHandler.Preserve
+        environments = response.$values.map((env: any) => ({
+          id: env.id,
+          name: env.name,
+          type: env.type,
+          area: env.area,
+          parameters: env.parameters && env.parameters.$values ? env.parameters.$values.map((param: any) => ({
+            id: param.id,
+            name: param.name,
+            value: param.value,
+            unit: param.unit,
+            status: param.status,
+            thresholds: param.thresholds ? {
+              optimal: param.thresholds.optimal,
+              borderline: param.thresholds.borderline
+            } : undefined,
+            isActive: param.isActive,
+            sensors: param.sensors && param.sensors.$values ? param.sensors.$values.map((sensor: any) => ({
+              id: sensor.id,
+              name: sensor.name,
+              isActive: sensor.isActive
+            })) : []
+          })) : [],
+          lastUpdated: env.lastUpdated
+        }))
+      } else if (Array.isArray(response)) {
+        // Struttura normale array
+        environments = response
+      } else {
+        throw new Error('Invalid API response structure')
+      }
+      
+      console.log('✅ Parsed environments:', environments)
+      return environments
     } catch (error) {
-      console.error('Error fetching environments:', error)
+      console.error('❌ Error fetching environments:', error)
       throw error
     }
   }
@@ -74,68 +113,68 @@ const mockEnvironments: Environment[] = [
     parameters: [
       {
         id: "occupancy",
-        name: "Popolosità",
+        name: "Occupancy",
         value: 0.18,
-        unit: "persone/m²",
+        unit: "people/m²",
         status: "optimal",
         thresholds: { optimal: { min: 0.1, max: 0.2 }, borderline: { min: 0.05, max: 0.3 } },
         isActive: true,
         sensors: [
-          { id: "occ-1", name: "Sensore Movimento Ingresso", isActive: true },
-          { id: "occ-2", name: "Sensore Movimento Centrale", isActive: true },
+          { id: "occ-1", name: "Entrance Motion Sensor", isActive: true },
+          { id: "occ-2", name: "Central Motion Sensor", isActive: true },
         ],
       },
       {
         id: "lighting",
-        name: "Luminosità",
+        name: "Lighting",
         value: 520,
         unit: "lux",
         status: "optimal",
         thresholds: { optimal: { min: 500, max: 750 }, borderline: { min: 300, max: 1000 } },
         isActive: true,
         sensors: [
-          { id: "light-1", name: "Luxmetro Finestra", isActive: true },
-          { id: "light-2", name: "Luxmetro Scrivania", isActive: false },
+          { id: "light-1", name: "Window Light Meter", isActive: true },
+          { id: "light-2", name: "Desk Light Meter", isActive: false },
         ],
       },
       {
-        id: "temperature",
-        name: "Temperatura",
+        id: "temperature", 
+        name: "Temperature",
         value: 22.5,
         unit: "°C",
         status: "optimal",
         thresholds: { optimal: { min: 20, max: 24 }, borderline: { min: 18, max: 26 } },
         isActive: true,
-        sensors: [{ id: "temp-1", name: "Termometro Ambiente", isActive: true }],
+        sensors: [{ id: "temp-1", name: "Room Thermometer", isActive: true }],
       },
       {
         id: "noise",
-        name: "Acustica",
+        name: "Acoustics",
         value: 45,
         unit: "dB",
         status: "borderline",
         thresholds: { optimal: { min: 30, max: 50 }, borderline: { min: 25, max: 60 } },
         isActive: true,
-        sensors: [{ id: "noise-1", name: "Fonometro Centrale", isActive: true }],
+        sensors: [{ id: "noise-1", name: "Central Sound Meter", isActive: true }],
       },
       {
         id: "humidity",
-        name: "Umidità",
+        name: "Humidity",
         value: 55,
         unit: "%",
         thresholds: { optimal: { min: 40, max: 60 }, borderline: { min: 30, max: 70 } },
         isActive: false,
-        sensors: [{ id: "hum-1", name: "Igrometro Parete", isActive: false }],
+        sensors: [{ id: "hum-1", name: "Wall Hygrometer", isActive: false }],
       },
       {
         id: "air_quality",
-        name: "Qualità dell'Aria",
+        name: "Air Quality",
         value: 42,
         unit: "IAQ",
         status: "optimal",
         thresholds: { optimal: { min: 0, max: 50 }, borderline: { min: 51, max: 100 } },
         isActive: true,
-        sensors: [{ id: "air-1", name: "Sensore Qualità Aria", isActive: true }],
+        sensors: [{ id: "air-1", name: "Air Quality Sensor", isActive: true }],
       },
       {
         id: "co2",
@@ -145,69 +184,69 @@ const mockEnvironments: Environment[] = [
         status: "optimal",
         thresholds: { optimal: { min: 400, max: 800 }, borderline: { min: 350, max: 1000 } },
         isActive: true,
-        sensors: [{ id: "co2-1", name: "Sensore CO2", isActive: true }],
+        sensors: [{ id: "co2-1", name: "CO2 Sensor", isActive: true }],
       },
     ],
     lastUpdated: new Date().toISOString(),
   },
   {
     id: "meeting-1",
-    name: "Sala Riunioni",
+    name: "Meeting Room",
     type: "meeting-room",
     area: 25,
     parameters: [
       {
         id: "occupancy",
-        name: "Popolosità",
+        name: "Occupancy",
         value: 0.32,
-        unit: "persone/m²",
+        unit: "people/m²",
         status: "critical",
         thresholds: { optimal: { min: 0.1, max: 0.25 }, borderline: { min: 0.05, max: 0.35 } },
         isActive: true,
-        sensors: [{ id: "occ-3", name: "Sensore Presenza Tavolo", isActive: true }],
+        sensors: [{ id: "occ-3", name: "Table Presence Sensor", isActive: true }],
       },
       {
         id: "lighting",
-        name: "Luminosità",
+        name: "Lighting",
         value: 680,
         unit: "lux",
         status: "optimal",
         thresholds: { optimal: { min: 500, max: 750 }, borderline: { min: 300, max: 1000 } },
         isActive: true,
-        sensors: [{ id: "light-3", name: "Luxmetro Soffitto", isActive: true }],
+        sensors: [{ id: "light-3", name: "Ceiling Light Meter", isActive: true }],
       },
       {
         id: "temperature",
-        name: "Temperatura",
+        name: "Temperature",
         value: 26.8,
         unit: "°C",
         status: "critical",
         thresholds: { optimal: { min: 20, max: 24 }, borderline: { min: 18, max: 26 } },
         isActive: true,
         sensors: [
-          { id: "temp-2", name: "Termometro Parete", isActive: true },
-          { id: "temp-3", name: "Termometro Tavolo", isActive: true },
+          { id: "temp-2", name: "Wall Thermometer", isActive: true },
+          { id: "temp-3", name: "Table Thermometer", isActive: true },
         ],
       },
       {
         id: "noise",
-        name: "Acustica",
+        name: "Acoustics",
         value: 58,
         unit: "dB",
         status: "borderline",
         thresholds: { optimal: { min: 30, max: 50 }, borderline: { min: 25, max: 60 } },
         isActive: true,
-        sensors: [{ id: "noise-2", name: "Microfono Ambiente", isActive: true }],
+        sensors: [{ id: "noise-2", name: "Room Microphone", isActive: true }],
       },
       {
         id: "humidity",
-        name: "Umidità",
+        name: "Humidity",
         value: 48,
         unit: "%",
         status: "optimal",
         thresholds: { optimal: { min: 40, max: 60 }, borderline: { min: 30, max: 70 } },
         isActive: true,
-        sensors: [{ id: "hum-2", name: "Igrometro Digitale", isActive: true }],
+        sensors: [{ id: "hum-2", name: "Digital Hygrometer", isActive: true }],
       },
     ],
     lastUpdated: new Date().toISOString(),
@@ -220,53 +259,53 @@ const mockEnvironments: Environment[] = [
     parameters: [
       {
         id: "occupancy",
-        name: "Popolosità",
+        name: "Occupancy",
         value: 0.15,
-        unit: "persone/m²",
+        unit: "people/m²",
         status: "optimal",
         thresholds: { optimal: { min: 0.08, max: 0.18 }, borderline: { min: 0.05, max: 0.25 } },
         isActive: true,
         sensors: [
-          { id: "occ-4", name: "Sensore Zona A", isActive: true },
-          { id: "occ-5", name: "Sensore Zona B", isActive: true },
-          { id: "occ-6", name: "Sensore Zona C", isActive: false },
+          { id: "occ-4", name: "Zone A Sensor", isActive: true },
+          { id: "occ-5", name: "Zone B Sensor", isActive: true },
+          { id: "occ-6", name: "Zone C Sensor", isActive: false },
         ],
       },
       {
         id: "lighting",
-        name: "Luminosità",
+        name: "Lighting",
         value: 420,
         unit: "lux",
         status: "borderline",
         thresholds: { optimal: { min: 500, max: 750 }, borderline: { min: 300, max: 1000 } },
         isActive: true,
         sensors: [
-          { id: "light-4", name: "Luxmetro Nord", isActive: true },
-          { id: "light-5", name: "Luxmetro Sud", isActive: true },
+          { id: "light-4", name: "North Light Meter", isActive: true },
+          { id: "light-5", name: "South Light Meter", isActive: true },
         ],
       },
       {
         id: "temperature",
-        name: "Temperatura",
+        name: "Temperature",
         value: 21.2,
         unit: "°C",
         status: "optimal",
         thresholds: { optimal: { min: 20, max: 24 }, borderline: { min: 18, max: 26 } },
         isActive: true,
         sensors: [
-          { id: "temp-4", name: "Termometro Zona A", isActive: true },
-          { id: "temp-5", name: "Termometro Zona B", isActive: true },
+          { id: "temp-4", name: "Zone A Thermometer", isActive: true },
+          { id: "temp-5", name: "Zone B Thermometer", isActive: true },
         ],
       },
       {
         id: "noise",
-        name: "Acustica",
+        name: "Acoustics",
         value: 62,
         unit: "dB",
         status: "critical",
         thresholds: { optimal: { min: 30, max: 50 }, borderline: { min: 25, max: 60 } },
         isActive: true,
-        sensors: [{ id: "noise-3", name: "Fonometro Centrale", isActive: true }],
+        sensors: [{ id: "noise-3", name: "Central Sound Meter", isActive: true }],
       },
       {
         id: "humidity",

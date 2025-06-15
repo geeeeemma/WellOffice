@@ -69,7 +69,7 @@ export function EnvironmentDetail() {
       <div className="container mx-auto p-4 sm:p-6">
         <Card className="border-red-200 bg-red-50">
           <CardContent className="pt-6">
-            <p className="text-red-800">Ambiente non trovato</p>
+            <p className="text-red-800">Environment not found</p>
           </CardContent>
         </Card>
       </div>
@@ -86,7 +86,7 @@ export function EnvironmentDetail() {
           <div className="flex items-center gap-4 min-w-0 flex-1">
             <Button variant="outline" onClick={() => navigate(-1)} className="flex-shrink-0">
               <ArrowLeft className="h-4 w-4" />
-              <span className="sr-only">Indietro</span>
+              <span className="sr-only">Back</span>
             </Button>
             <div className="min-w-0 flex-1">
               <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
@@ -119,13 +119,13 @@ export function EnvironmentDetail() {
           </div>
           <Button onClick={handleRefresh} className="w-full sm:w-auto">
             <RefreshCw className="h-4 w-4 mr-2" />
-            Aggiorna
+            Refresh
           </Button>
         </div>
 
         {/* Parameters Grid */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4">Parametri Attuali</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4">Current Parameters</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
             {environment.parameters.map((parameter) => (
               <ParameterCard
@@ -139,7 +139,7 @@ export function EnvironmentDetail() {
 
         {/* Historical Charts */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4">Andamento Storico</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4">Historical Trends</h2>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             {environment.parameters.map((parameter) => {
               const dataKey = `${environmentId}-${parameter.id}`
