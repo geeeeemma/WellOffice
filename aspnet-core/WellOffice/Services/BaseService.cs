@@ -35,4 +35,16 @@ public abstract class BaseService<T> : IBaseService<T> where T : class
     {
         return await _dbSet.FindAsync(id) != null;
     }
+
+    public virtual async Task UpdateAsync(T entity)
+    {
+        var existingEntity = await _dbSet.FindAsync(entity.GetType().GetProperty("Id")?.GetValue(entity));
+        if (existingEntity == null)
+        {
+            throw new KeyNotFoundException($"Entity with ID {entity.GetType().GetProperty("Id")?.GetValue(entity)} not found");
+        }
+
+        _context.Entry(existingEntity).CurrentValues.SetValues(entity);
+        await _context.SaveChangesAsync();
+    }
 } 

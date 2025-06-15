@@ -65,4 +65,28 @@ public class SensorController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    // PUT: api/Sensor/5
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateSensor(Guid id, Sensor sensor)
+    {
+        if (id != sensor.Id)
+        {
+            return BadRequest("ID mismatch");
+        }
+
+        try
+        {
+            await _sensorService.UpdateAsync(sensor);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 } 
