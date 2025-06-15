@@ -11,10 +11,12 @@ namespace WellOffice.Controllers;
 public class SensorDataController : ControllerBase
 {
     private readonly ISensorDataService _sensorDataService;
+    private readonly ISensorService _sensorService;
 
-    public SensorDataController(ISensorDataService sensorDataService)
+    public SensorDataController(ISensorDataService sensorDataService, ISensorService sensorService)
     {
         _sensorDataService = sensorDataService;
+        _sensorService = sensorService;
     }
 
     // GET: api/SensorData
@@ -108,7 +110,7 @@ public class SensorDataController : ControllerBase
                 throw new InvalidOperationException($"Invalid sensor ID format: {sensorDto.Id}");
             }
 
-            var sensor = await _sensorDataService.GetByIdAsync(sensorId);
+            var sensor = await _sensorService.GetByIdAsync(sensorId);
             if (sensor == null)
             {
                 throw new InvalidOperationException($"Sensor {sensorDto.Id} not found or inactive.");
