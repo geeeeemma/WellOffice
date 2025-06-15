@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, RefreshCw, TrendingUp, TrendingDown, Minus } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
 import { AISuggestions } from "@/components/AISuggestions"
 
 export function ParameterDetail() {
@@ -19,7 +18,6 @@ export function ParameterDetail() {
   const [environment, setEnvironment] = useState<Environment | null>(null)
   const [parameter, setParameter] = useState<EnvironmentParameter | null>(null)
   const [loading, setLoading] = useState(true)
-  const { toast } = useToast()
 
   const environmentId = params.id as string
   const parameterId = params.parameterId as string

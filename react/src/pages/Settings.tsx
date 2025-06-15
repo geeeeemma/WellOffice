@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RefreshCw, Sliders, Wifi, WifiOff, Save } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { WellOfficeApiClient, Sensor, Threshold } from "../services/generated/api-client"
-import type { ThresholdUpdate, SensorUpdate } from "@/types/environment"
 import config from "../config/env"
 import { Button } from "@/components/ui/button"
 
@@ -18,7 +17,6 @@ const apiClient = new WellOfficeApiClient(config.apiUrl)
 
 export function Settings() {
   const { environments, fetchEnvironments } = useEnvironmentStore()
-  const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState<string | null>(null)
   const [thresholdValues, setThresholdValues] = useState<Record<string, {
     optimal: { min: number; max: number };
@@ -122,8 +120,6 @@ export function Settings() {
   }
 
   const handleSensorToggle = async (
-    environmentId: string,
-    parameterId: string,
     sensorId: string,
     isActive: boolean,
   ) => {
@@ -164,7 +160,7 @@ export function Settings() {
     }
   }
 
-  if (loading && environments.length === 0) {
+  if (environments.length === 0) {
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center h-64">
@@ -389,7 +385,7 @@ export function Settings() {
                                 <Switch
                                   checked={sensor.isActive}
                                   onCheckedChange={(checked) =>
-                                    handleSensorToggle(environment.id, parameter.id, sensor.id, checked)
+                                    handleSensorToggle(sensor.id, checked )
                                   }
                                   disabled={saving === sensor.id}
                                 />

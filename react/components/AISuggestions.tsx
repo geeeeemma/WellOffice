@@ -17,7 +17,6 @@ import {
   CheckCircle,
   Info,
 } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
 import { useAIService } from "@/services/aiService"
 import type { Environment, EnvironmentParameter, HistoricalData } from "@/types/environment"
 import type { AIGeneratedSuggestion } from "@/types/ai"
@@ -62,7 +61,6 @@ export function AISuggestions({ environment, parameter, historicalData }: AISugg
   const { generateSuggestions, loading, error } = useAIService()
   const [suggestions, setSuggestions] = useState<AIGeneratedSuggestion[]>([])
   const [overallAssessment, setOverallAssessment] = useState<any>(null)
-  const { toast } = useToast()
 
   useEffect(() => {
     loadAISuggestions()
