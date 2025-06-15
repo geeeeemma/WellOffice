@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WellOffice.DTOs;
 using WellOffice.Models;
 using WellOffice.Services;
 
@@ -37,10 +38,13 @@ public class RoomController : ControllerBase
 
     // GET: api/Room/with-sensors
     [HttpGet("with-sensors")]
-    public async Task<ActionResult<IEnumerable<Room>>> GetRoomsWithSensors()
+    public async Task<ActionResult<IEnumerable<RoomWithSensorsDto>>> GetRoomsWithSensors()
     {
         var rooms = await _roomService.GetRoomsWithSensorsAsync();
-        return Ok(rooms);
+
+        var result = await this.GetRoomSensorsDtos(rooms);
+
+        return Ok(result);
     }
 
     // GET: api/Room/with-thresholds
@@ -64,5 +68,44 @@ public class RoomController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+    }
+
+    private async Task<IEnumerable<RoomWithSensorsDto>> GetRoomSensorsDtos(IEnumerable<Room> rooms)
+    {
+        var dtoList = rooms.Select(room => new RoomWithSensorsDto
+        {
+            Id = room.Id.ToString(),
+            Name = room.Name,
+
+            Sensors = room.Sensors?.Select(sensor => new SensorInfoDto
+            {
+                Id = sensor.Id.ToString(),
+                Name = sensor.Name,
+                Type = sensor.Parameter?.Name,
+                UnitMeasure = sensor.Parameter?.UnitMeasure?.ToString()
+            }).ToList() ?? new List<SensorInfoDto>(),
+
+            RoomThresholds = room.Thresholds?.Select(threshold => new ThresholdForRoomDto
+            {
+                SensorType = threshold.Parameter?.Name,
+                OptimalMinValue = threshold.OptimalMinValue.ToString(),
+                OptimalMaxValue = threshold.OptimalMaxValue.ToString(),
+                AcceptableMinValue = threshold.AcceptableMinValue.ToString(),
+                AcceptableMaxValue = threshold.AcceptableMaxValue.ToString()
+            }).ToList() ?? new List<ThresholdForRoomDto>(),
+
+            ParameterThresholds = room.Sensors?
+                .SelectMany(s => s.Parameter?.Thresholds ?? new List<Threshold>())
+                .Select(threshold => new ThresholdForRoomDto
+                {
+                    SensorType = threshold.Parameter?.Name,
+                    OptimalMinValue = threshold.OptimalMinValue.ToString(),
+                    OptimalMaxValue = threshold.OptimalMaxValue.ToString(),
+                    AcceptableMinValue = threshold.AcceptableMinValue.ToString(),
+                    AcceptableMaxValue = threshold.AcceptableMaxValue.ToString()
+                }).ToList() ?? new List<ThresholdForRoomDto>()
+        });
+
+        return dtoList;
     }
 } 

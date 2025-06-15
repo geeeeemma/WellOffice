@@ -71,7 +71,7 @@ public class EnvironmentService : IEnvironmentService
                     Id = parameter.Id.ToString(),
                     Name = parameter.Name,
                     Value = latestValue != null ? (double)latestValue.Value : 0,
-                    Unit = GetUnitString(parameter.UnitMeasure),
+                    Unit = parameter.UnitMeasure,
                     Status = status,
                     Thresholds = threshold != null ? new ThresholdsDto
                     {
