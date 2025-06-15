@@ -56,4 +56,25 @@ public class SensorService : BaseService<Sensor>, ISensorService
         entity.Id = Guid.NewGuid();
         return await base.CreateAsync(entity);
     }
+
+    public override async Task UpdateAsync(Sensor entity)
+    {
+        var existingSensor = await _context.Sensors.FindAsync(entity.Id);
+        if (existingSensor == null)
+        {
+            throw new KeyNotFoundException($"Sensor with ID {entity.Id} not found");
+        }
+
+        // Verify that Room and Parameter exist
+        var roomExists = await _context.Rooms.AnyAsync(r => r.Id == entity.RoomId);
+        var parameterExists = await _context.Parameters.AnyAsync(p => p.Id == entity.ParameterId);
+
+        if (!roomExists || !parameterExists)
+        {
+            throw new InvalidOperationException("Room or Parameter not found");
+        }
+
+        _context.Entry(existingSensor).CurrentValues.SetValues(entity);
+        await _context.SaveChangesAsync();
+    }
 } 

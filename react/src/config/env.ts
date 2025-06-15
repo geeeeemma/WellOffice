@@ -25,7 +25,7 @@ export interface AppConfig {
  */
 export const config: AppConfig = {
   // Backend API URL
-  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000',
   
   // OpenAI API Key
   openaiApiKey: import.meta.env.VITE_OPENAI_API_KEY || 'demo-key',
@@ -78,7 +78,7 @@ export function validateConfig(): void {
     console.warn('💡 Crea un file .env nella root del progetto per configurare le variabili.')
     console.warn('📝 Esempio file .env:')
     console.warn('VITE_OPENAI_API_KEY=sk-proj-your-actual-key-here')
-    console.warn('VITE_API_URL=http://localhost:5000/api')
+    console.warn('VITE_API_URL=http://localhost:5000')
     console.warn('VITE_DEBUG=true')
   }
   

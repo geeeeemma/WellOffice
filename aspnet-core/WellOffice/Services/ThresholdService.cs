@@ -62,4 +62,33 @@ public class ThresholdService : BaseService<Threshold>, IThresholdService
     {
         return await CreateThresholdAsync(entity);
     }
+
+    
+
+    public override async Task UpdateAsync(Threshold entity)
+    {
+        var existingThreshold = await _context.Thresholds.FindAsync(entity.Id);
+        if (existingThreshold == null)
+        {
+            throw new KeyNotFoundException($"Threshold with ID {entity.Id} not found");
+        }
+
+        // Verify that Room and Parameter exist
+        var roomExists = await _context.Rooms.AnyAsync(r => r.Id == entity.RoomId);
+        var parameterExists = await _context.Parameters.AnyAsync(p => p.Id == entity.ParameterId);
+
+        if (!roomExists || !parameterExists)
+        {
+            throw new InvalidOperationException("Room or Parameter not found");
+        }
+
+        // Validate threshold values
+        if (!await ValidateThresholdValuesAsync(entity))
+        {
+            throw new InvalidOperationException("Invalid threshold values");
+        }
+
+        _context.Entry(existingThreshold).CurrentValues.SetValues(entity);
+        await _context.SaveChangesAsync();
+    }
 } 

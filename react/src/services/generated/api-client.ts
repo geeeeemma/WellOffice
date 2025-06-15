@@ -860,7 +860,7 @@ export class WellOfficeApiClient {
      * @return Success
      */
     sensorGET(id: string): Promise<Sensor> {
-        let url_ = this.baseUrl + "/api/Sensor/{id}";
+        let url_ = this.baseUrl + "/Sensor/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -894,6 +894,47 @@ export class WellOfficeApiClient {
             });
         }
         return Promise.resolve<Sensor>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    sensorPUT(id: string, body: Sensor | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/Sensor/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSensorPUT(_response);
+        });
+    }
+
+    protected processSensorPUT(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 
     /**
@@ -1367,7 +1408,7 @@ export class WellOfficeApiClient {
      * @return Success
      */
     thresholdGET(id: string): Promise<Threshold> {
-        let url_ = this.baseUrl + "/api/Threshold/{id}";
+        let url_ = this.baseUrl + "/Threshold/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -1401,6 +1442,47 @@ export class WellOfficeApiClient {
             });
         }
         return Promise.resolve<Threshold>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    thresholdPUT(id: string, body: Threshold | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/Threshold/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processThresholdPUT(_response);
+        });
+    }
+
+    protected processThresholdPUT(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 
     /**

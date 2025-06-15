@@ -80,7 +80,7 @@ public class SensorDataController : ControllerBase
 
     // POST: api/SensorData
     [HttpPost]
-    public async Task<ActionResult<IEnumerable<SensorData>>> CreateSensorData(SensorDataRequestDto sensorData)
+    public async Task<ActionResult<IEnumerable<SensorData>>> CreateSensorData(RoomSensorsForRequestDto sensorData)
     {
         var sensorDataList = await ConvertToSensorDataListAsync(sensorData);
         try
@@ -97,33 +97,30 @@ public class SensorDataController : ControllerBase
         }
     }
 
-    private async Task<List<SensorData>> ConvertToSensorDataListAsync(SensorDataRequestDto dto)
+    private async Task<List<SensorData>> ConvertToSensorDataListAsync(RoomSensorsForRequestDto dto)
     {
         var result = new List<SensorData>();
 
-        foreach (var room in dto.rooms)
+        foreach (var sensorDto in dto.Sensors)
         {
-            foreach (var sensorDto in room.Sensors)
+            if (!Guid.TryParse(sensorDto.Id, out var sensorId))
             {
-                if (!Guid.TryParse(sensorDto.Id, out var sensorId))
-                {
-                    throw new InvalidOperationException($"Invalid sensor ID format: {sensorDto.Id}");
-                }
-
-                var sensor = await _sensorDataService.GetByIdAsync(sensorId);
-                if (sensor == null)
-                {
-                    throw new InvalidOperationException($"Sensor {sensorDto.Id} not found or inactive.");
-                }
-
-                result.Add(new SensorData
-                {
-                    Id = Guid.NewGuid(),
-                    SensorId = sensorId,
-                    Value = sensorDto.Value,
-                    DetectionDate = DateTime.UtcNow
-                });
+                throw new InvalidOperationException($"Invalid sensor ID format: {sensorDto.Id}");
             }
+
+            var sensor = await _sensorDataService.GetByIdAsync(sensorId);
+            if (sensor == null)
+            {
+                throw new InvalidOperationException($"Sensor {sensorDto.Id} not found or inactive.");
+            }
+
+            result.Add(new SensorData
+            {
+                Id = Guid.NewGuid(),
+                SensorId = sensorId,
+                Value = sensorDto.Value,
+                DetectionDate = DateTime.UtcNow
+            });
         }
 
         return result;

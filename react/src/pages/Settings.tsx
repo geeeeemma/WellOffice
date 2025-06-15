@@ -7,64 +7,113 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { RefreshCw, Sliders, Wifi, WifiOff } from "lucide-react"
+import { RefreshCw, Sliders, Wifi, WifiOff, Save } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { apiService } from "@/services/api"
+import { WellOfficeApiClient, Sensor, Threshold } from "../services/generated/api-client"
 import type { ThresholdUpdate, SensorUpdate } from "@/types/environment"
+import config from "../config/env"
+import { Button } from "@/components/ui/button"
+
+const apiClient = new WellOfficeApiClient(config.apiUrl)
 
 export function Settings() {
   const { environments, fetchEnvironments } = useEnvironmentStore()
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState<string | null>(null)
+  const [thresholdValues, setThresholdValues] = useState<Record<string, {
+    optimal: { min: number; max: number };
+    borderline: { min: number; max: number };
+  }>>({})
   const { toast } = useToast()
 
   useEffect(() => {
     fetchEnvironments()
   }, [fetchEnvironments])
 
-  const handleThresholdUpdate = async (
-    environmentId: string,
+  // Initialize threshold values when environments are loaded
+  useEffect(() => {
+    const newThresholdValues: Record<string, {
+      optimal: { min: number; max: number };
+      borderline: { min: number; max: number };
+    }> = {}
+    
+    environments.forEach(environment => {
+      Object.values(environment.parameters).forEach(parameter => {
+        if (parameter.thresholds) {
+          newThresholdValues[parameter.id] = {
+            optimal: {
+              min: parameter.thresholds.optimal.min,
+              max: parameter.thresholds.optimal.max
+            },
+            borderline: {
+              min: parameter.thresholds.borderline.min,
+              max: parameter.thresholds.borderline.max
+            }
+          }
+        }
+      })
+    })
+    
+    setThresholdValues(newThresholdValues)
+  }, [environments])
+
+  const handleThresholdValueChange = (
     parameterId: string,
     field: "optimal" | "borderline",
     type: "min" | "max",
-    value: number,
+    value: number
   ) => {
-    setSaving(`${environmentId}-${parameterId}-threshold`)
-
-    try {
-      const environment = environments.find((env) => env.id === environmentId)
-      if (!environment) return
-
-      const parameter = environment.parameters[parameterId as keyof typeof environment.parameters]
-      if (!parameter) return
-
-      const newThresholds = {
-        ...parameter.thresholds,
+    setThresholdValues(prev => ({
+      ...prev,
+      [parameterId]: {
+        ...prev[parameterId],
         [field]: {
-          ...parameter.thresholds[field],
-          [type]: value,
-        },
+          ...prev[parameterId][field],
+          [type]: value
+        }
+      }
+    }))
+  }
+
+  const handleThresholdSave = async (parameterId: string) => {
+    try {
+      setSaving(parameterId)
+
+      // Get the current threshold data
+      const thresholdData = await apiClient.thresholdGET(parameterId)
+      if (!thresholdData) {
+        throw new Error("Threshold not found")
       }
 
-      const update: ThresholdUpdate = {
-        environmentId,
-        parameterId,
-        thresholds: newThresholds,
+      const values = thresholdValues[parameterId]
+      if (!values) {
+        throw new Error("No threshold values to save")
       }
 
-      await apiService.updateThresholds(update)
+      // Create a new Threshold instance with the updated data
+      const updatedThreshold = new Threshold({
+        ...thresholdData,
+        optimalMinValue: values.optimal.min,
+        optimalMaxValue: values.optimal.max,
+        acceptableMinValue: values.borderline.min,
+        acceptableMaxValue: values.borderline.max,
+      })
+
+      // Update the threshold
+      await apiClient.thresholdPUT(parameterId, updatedThreshold)
 
       toast({
-                  title: "Thresholds Updated",
-          description: `Thresholds for ${parameter.name} have been saved successfully.`,
+        title: "Thresholds Updated",
+        description: "Thresholds have been saved successfully.",
       })
 
       // Refresh data
       await fetchEnvironments()
-          } catch (error) {
-        toast({
-          title: "Error",
-          description: "Unable to update thresholds. Please try again later.",
+    } catch (error) {
+      console.error("Error updating thresholds:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update thresholds. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -78,29 +127,36 @@ export function Settings() {
     sensorId: string,
     isActive: boolean,
   ) => {
-    setSaving(`${environmentId}-${parameterId}-${sensorId}`)
-
     try {
-      const update: SensorUpdate = {
-        environmentId,
-        parameterId,
-        sensorId,
-        isActive,
+      setSaving(sensorId)
+      
+      // Get the current sensor data
+      const sensorData = await apiClient.sensorGET(sensorId)
+      if (!sensorData) {
+        throw new Error("Sensor not found")
       }
 
-      await apiService.updateSensor(update)
+      // Create a new Sensor instance with the updated data
+      const updatedSensor = new Sensor({
+        ...sensorData,
+        isActive
+      })
+
+      // Update the sensor with the new isActive status
+      await apiClient.sensorPUT(sensorId, updatedSensor)
 
       toast({
-                  title: "Sensor Updated",
-        description: `Sensor has been ${isActive ? "activated" : "deactivated"} successfully.`,
+        title: "Sensor Updated",
+        description: `Sensor ${sensorData.name} has been ${isActive ? "activated" : "deactivated"}.`,
       })
 
       // Refresh data
       await fetchEnvironments()
     } catch (error) {
+      console.error("Error updating sensor:", error)
       toast({
         title: "Error",
-        description: "Unable to update sensor. Please try again later.",
+        description: "Failed to update sensor status. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -165,119 +221,134 @@ export function Settings() {
                   </CardHeader>
 
                   <CardContent className="space-y-6">
-                    {/* Thresholds Configuration */}
-                    <div className="space-y-4">
-                      <h4 className="font-semibold text-lg flex items-center gap-2">
-                        <Sliders className="h-4 w-4" />
-                        Threshold Configuration
-                      </h4>
+                    <Tabs defaultValue="thresholds">
+                      <TabsList>
+                        <TabsTrigger value="thresholds" className="flex items-center gap-2">
+                          <Sliders className="h-4 w-4" />
+                          Soglie
+                        </TabsTrigger>
+                      </TabsList>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Optimal Range */}
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-green-700 dark:text-green-400">
-                            Range Ottimale ({parameter.unit})
-                          </Label>
-                          <div className="flex gap-2 items-center">
-                            <div className="flex-1">
-                              <Label htmlFor={`${parameter.id}-opt-min`} className="text-xs text-muted-foreground">
-                                Minimo
-                              </Label>
-                              <Input
-                                id={`${parameter.id}-opt-min`}
-                                type="number"
-                                step="0.1"
-                                defaultValue={parameter.thresholds.optimal.min}
-                                onBlur={(e) =>
-                                  handleThresholdUpdate(
-                                    environment.id,
-                                    parameter.id,
-                                    "optimal",
-                                    "min",
-                                    Number.parseFloat(e.target.value),
-                                  )
-                                }
-                                className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800"
-                              />
+                      <TabsContent value="thresholds" className="space-y-6">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold">{parameter.name}</h3>
+                          <Button
+                            onClick={() => handleThresholdSave(parameter.id)}
+                            disabled={saving === parameter.id}
+                            className="flex items-center gap-2"
+                          >
+                            {saving === parameter.id ? (
+                              <RefreshCw className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Save className="h-4 w-4" />
+                            )}
+                            Salva Soglie
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Optimal Range */}
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium text-green-700 dark:text-green-400">
+                              Range Ottimale ({parameter.unit})
+                            </Label>
+                            <div className="flex gap-2 items-center">
+                              <div className="flex-1">
+                                <Label htmlFor={`${parameter.id}-opt-min`} className="text-xs text-muted-foreground">
+                                  Minimo
+                                </Label>
+                                <Input
+                                  id={`${parameter.id}-opt-min`}
+                                  type="number"
+                                  step="0.1"
+                                  value={thresholdValues[parameter.id]?.optimal.min ?? parameter.thresholds.optimal.min}
+                                  onChange={(e) =>
+                                    handleThresholdValueChange(
+                                      parameter.id,
+                                      "optimal",
+                                      "min",
+                                      Number.parseFloat(e.target.value)
+                                    )
+                                  }
+                                  className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800"
+                                />
+                              </div>
+                              <span className="text-muted-foreground">-</span>
+                              <div className="flex-1">
+                                <Label htmlFor={`${parameter.id}-opt-max`} className="text-xs text-muted-foreground">
+                                  Massimo
+                                </Label>
+                                <Input
+                                  id={`${parameter.id}-opt-max`}
+                                  type="number"
+                                  step="0.1"
+                                  value={thresholdValues[parameter.id]?.optimal.max ?? parameter.thresholds.optimal.max}
+                                  onChange={(e) =>
+                                    handleThresholdValueChange(
+                                      parameter.id,
+                                      "optimal",
+                                      "max",
+                                      Number.parseFloat(e.target.value)
+                                    )
+                                  }
+                                  className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800"
+                                />
+                              </div>
                             </div>
-                            <span className="text-muted-foreground">-</span>
-                            <div className="flex-1">
-                              <Label htmlFor={`${parameter.id}-opt-max`} className="text-xs text-muted-foreground">
-                                Massimo
-                              </Label>
-                              <Input
-                                id={`${parameter.id}-opt-max`}
-                                type="number"
-                                step="0.1"
-                                defaultValue={parameter.thresholds.optimal.max}
-                                onBlur={(e) =>
-                                  handleThresholdUpdate(
-                                    environment.id,
-                                    parameter.id,
-                                    "optimal",
-                                    "max",
-                                    Number.parseFloat(e.target.value),
-                                  )
-                                }
-                                className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800"
-                              />
+                          </div>
+
+                          {/* Borderline Range */}
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium text-yellow-700 dark:text-yellow-400">
+                              Range Accettabile ({parameter.unit})
+                            </Label>
+                            <div className="flex gap-2 items-center">
+                              <div className="flex-1">
+                                <Label htmlFor={`${parameter.id}-bor-min`} className="text-xs text-muted-foreground">
+                                  Minimo
+                                </Label>
+                                <Input
+                                  id={`${parameter.id}-bor-min`}
+                                  type="number"
+                                  step="0.1"
+                                  value={thresholdValues[parameter.id]?.borderline.min ?? parameter.thresholds.borderline.min}
+                                  onChange={(e) =>
+                                    handleThresholdValueChange(
+                                      parameter.id,
+                                      "borderline",
+                                      "min",
+                                      Number.parseFloat(e.target.value)
+                                    )
+                                  }
+                                  className="bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800"
+                                />
+                              </div>
+                              <span className="text-muted-foreground">-</span>
+                              <div className="flex-1">
+                                <Label htmlFor={`${parameter.id}-bor-max`} className="text-xs text-muted-foreground">
+                                  Massimo
+                                </Label>
+                                <Input
+                                  id={`${parameter.id}-bor-max`}
+                                  type="number"
+                                  step="0.1"
+                                  value={thresholdValues[parameter.id]?.borderline.max ?? parameter.thresholds.borderline.max}
+                                  onChange={(e) =>
+                                    handleThresholdValueChange(
+                                      parameter.id,
+                                      "borderline",
+                                      "max",
+                                      Number.parseFloat(e.target.value)
+                                    )
+                                  }
+                                  className="bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800"
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
-
-                        {/* Borderline Range */}
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-yellow-700 dark:text-yellow-400">
-                            Range Accettabile ({parameter.unit})
-                          </Label>
-                          <div className="flex gap-2 items-center">
-                            <div className="flex-1">
-                              <Label htmlFor={`${parameter.id}-bor-min`} className="text-xs text-muted-foreground">
-                                Minimo
-                              </Label>
-                              <Input
-                                id={`${parameter.id}-bor-min`}
-                                type="number"
-                                step="0.1"
-                                defaultValue={parameter.thresholds.borderline.min}
-                                onBlur={(e) =>
-                                  handleThresholdUpdate(
-                                    environment.id,
-                                    parameter.id,
-                                    "borderline",
-                                    "min",
-                                    Number.parseFloat(e.target.value),
-                                  )
-                                }
-                                className="bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800"
-                              />
-                            </div>
-                            <span className="text-muted-foreground">-</span>
-                            <div className="flex-1">
-                              <Label htmlFor={`${parameter.id}-bor-max`} className="text-xs text-muted-foreground">
-                                Massimo
-                              </Label>
-                              <Input
-                                id={`${parameter.id}-bor-max`}
-                                type="number"
-                                step="0.1"
-                                defaultValue={parameter.thresholds.borderline.max}
-                                onBlur={(e) =>
-                                  handleThresholdUpdate(
-                                    environment.id,
-                                    parameter.id,
-                                    "borderline",
-                                    "max",
-                                    Number.parseFloat(e.target.value),
-                                  )
-                                }
-                                className="bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                      </TabsContent>
+                    </Tabs>
 
                     <Separator />
 
@@ -320,7 +391,7 @@ export function Settings() {
                                   onCheckedChange={(checked) =>
                                     handleSensorToggle(environment.id, parameter.id, sensor.id, checked)
                                   }
-                                  disabled={saving === `${environment.id}-${parameter.id}-${sensor.id}`}
+                                  disabled={saving === sensor.id}
                                 />
                               </div>
                             </CardContent>

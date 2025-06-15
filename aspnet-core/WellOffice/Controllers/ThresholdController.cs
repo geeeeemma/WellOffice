@@ -65,4 +65,28 @@ public class ThresholdController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    // PUT: api/Threshold/5
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateThreshold(Guid id, Threshold threshold)
+    {
+        if (id != threshold.Id)
+        {
+            return BadRequest("ID mismatch");
+        }
+
+        try
+        {
+            await _thresholdService.UpdateAsync(threshold);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 } 
