@@ -12,8 +12,18 @@ public class RoomService : BaseService<Room>, IRoomService
 
     public async Task<IEnumerable<Room>> GetRoomsWithSensorsAsync()
     {
+        /*return await _context.Rooms
+            .Include(r => r.Sensors)
+            .ThenInclude(s => s.Parameter)
+            .ThenInclude(s => s.Thresholds).ThenInclude(t => t.Parameter)
+            .ToListAsync();*/
+
         return await _context.Rooms
             .Include(r => r.Sensors)
+                .ThenInclude(s => s.Parameter)
+                    .ThenInclude(p => p.Thresholds) // Thresholds del Parameter
+            .Include(r => r.Thresholds) // Thresholds direttamente sulla Room
+                .ThenInclude(t => t.Parameter) // Include anche il Parameter legato alla Threshold del Room
             .ToListAsync();
     }
 

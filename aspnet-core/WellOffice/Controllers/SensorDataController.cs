@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WellOffice.DTOs;
 using WellOffice.Models;
 using WellOffice.Services;
 
@@ -53,16 +55,52 @@ public class SensorDataController : ControllerBase
 
     // POST: api/SensorData
     [HttpPost]
-    public async Task<ActionResult<SensorData>> CreateSensorData(SensorData sensorData)
+    public async Task<ActionResult<IEnumerable<SensorData>>> CreateSensorData(SensorDataRequestDto sensorData)
     {
+        var sensorDataList = await ConvertToSensorDataListAsync(sensorData);
         try
         {
-            var createdSensorData = await _sensorDataService.CreateSensorDataAsync(sensorData);
-            return CreatedAtAction(nameof(GetSensorData), new { id = createdSensorData.Id }, createdSensorData);
+            foreach (var data in sensorDataList)
+            {
+                var createdSensorData = await _sensorDataService.CreateSensorDataAsync(data);
+            }
+            return Ok(sensorDataList);
         }
         catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);
         }
+    }
+
+    private async Task<List<SensorData>> ConvertToSensorDataListAsync(SensorDataRequestDto dto)
+    {
+        var result = new List<SensorData>();
+
+        foreach (var room in dto.rooms)
+        {
+            foreach (var sensorDto in room.Sensors)
+            {
+                if (!Guid.TryParse(sensorDto.Id, out var sensorId))
+                {
+                    throw new InvalidOperationException($"Invalid sensor ID format: {sensorDto.Id}");
+                }
+
+                var sensor = await _sensorDataService.GetByIdAsync(sensorId);
+                if (sensor == null)
+                {
+                    throw new InvalidOperationException($"Sensor {sensorDto.Id} not found or inactive.");
+                }
+
+                result.Add(new SensorData
+                {
+                    Id = Guid.NewGuid(),
+                    SensorId = sensorId,
+                    Value = sensorDto.Value,
+                    DetectionDate = DateTime.UtcNow
+                });
+            }
+        }
+
+        return result;
     }
 } 
