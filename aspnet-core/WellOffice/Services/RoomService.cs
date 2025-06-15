@@ -25,6 +25,8 @@ public class RoomService : BaseService<Room>, IRoomService
             .Include(r => r.Thresholds) // Thresholds direttamente sulla Room
                 .ThenInclude(t => t.Parameter) // Include anche il Parameter legato alla Threshold del Room
             .ToListAsync();
+
+
     }
 
     public async Task<IEnumerable<Room>> GetRoomsWithThresholdsAsync()

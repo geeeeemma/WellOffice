@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WellOffice.Data;
 using WellOffice.DTOs;
 using WellOffice.Models;
 using WellOffice.Services;
@@ -12,11 +13,13 @@ public class SensorDataController : ControllerBase
 {
     private readonly ISensorDataService _sensorDataService;
     private readonly ISensorService _sensorService;
+    private readonly WellOfficeContext _context;
 
-    public SensorDataController(ISensorDataService sensorDataService, ISensorService sensorService)
+    public SensorDataController(ISensorDataService sensorDataService, ISensorService sensorService, WellOfficeContext context)
     {
         _sensorDataService = sensorDataService;
         _sensorService = sensorService;
+        _context = context;
     }
 
     // GET: api/SensorData
@@ -85,6 +88,8 @@ public class SensorDataController : ControllerBase
     public async Task<ActionResult<IEnumerable<SensorData>>> CreateSensorData(RoomSensorsForRequestDto sensorData)
     {
         var sensorDataList = await ConvertToSensorDataListAsync(sensorData);
+
+
         try
         {
             foreach (var data in sensorDataList)
@@ -120,7 +125,7 @@ public class SensorDataController : ControllerBase
             {
                 Id = Guid.NewGuid(),
                 SensorId = sensorId,
-                Value = sensorDto.Value,
+                Value = (decimal)(sensorDto?.Value ?? 0),
                 DetectionDate = DateTime.UtcNow
             });
         }

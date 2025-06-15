@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WellOffice.Data;
 using WellOffice.DTOs;
 using WellOffice.Models;
 using WellOffice.Services;
@@ -10,10 +12,12 @@ namespace WellOffice.Controllers;
 public class RoomController : ControllerBase
 {
     private readonly IRoomService _roomService;
+    private readonly WellOfficeContext _context;
 
-    public RoomController(IRoomService roomService)
+    public RoomController(IRoomService roomService, WellOfficeContext context)
     {
         _roomService = roomService;
+        _context = context;
     }
 
     // GET: api/Room
@@ -42,7 +46,20 @@ public class RoomController : ControllerBase
     {
         var rooms = await _roomService.GetRoomsWithSensorsAsync();
 
-        var result = await this.GetRoomSensorsDtos(rooms);
+        var sensorIds = rooms
+        .SelectMany(r => r.Sensors)
+        .Select(s => s.Id)
+            .ToList();
+
+        var latestSensorData = await _context.SensorData
+            .Where(sd => sensorIds.Contains(sd.SensorId))
+            .GroupBy(sd => sd.SensorId)
+            .Select(g => g.OrderByDescending(sd => sd.DetectionDate).First())
+            .ToListAsync();
+
+        var result = await this.GetRoomSensorsDtos(rooms, latestSensorData);
+
+        
 
         return Ok(result);
     }
@@ -70,19 +87,21 @@ public class RoomController : ControllerBase
         }
     }
 
-    private async Task<IEnumerable<RoomWithSensorsDto>> GetRoomSensorsDtos(IEnumerable<Room> rooms)
+    private async Task<IEnumerable<RoomWithSensorsDto>> GetRoomSensorsDtos(IEnumerable<Room> rooms, List<SensorData> sensorData)
     {
         var dtoList = rooms.Select(room => new RoomWithSensorsDto
         {
             Id = room.Id.ToString(),
             Name = room.Name,
 
+
             Sensors = room.Sensors?.Select(sensor => new SensorInfoDto
             {
                 Id = sensor.Id.ToString(),
                 Name = sensor.Name,
                 Type = sensor.Parameter?.Name,
-                UnitMeasure = sensor.Parameter?.UnitMeasure?.ToString()
+                UnitMeasure = sensor.Parameter?.UnitMeasure?.ToString(),
+                LastValue = sensorData.FirstOrDefault(sd => sd.SensorId == sensor.Id)?.Value
             }).ToList() ?? new List<SensorInfoDto>(),
 
             RoomThresholds = room.Thresholds?.Select(threshold => new ThresholdForRoomDto
@@ -103,7 +122,9 @@ public class RoomController : ControllerBase
                     OptimalMaxValue = threshold.OptimalMaxValue.ToString(),
                     AcceptableMinValue = threshold.AcceptableMinValue.ToString(),
                     AcceptableMaxValue = threshold.AcceptableMaxValue.ToString()
-                }).ToList() ?? new List<ThresholdForRoomDto>()
+                }).ToList() ?? new List<ThresholdForRoomDto>(),
+
+            
         });
 
         return dtoList;
