@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">WellOffice</string>
+    <string name="sensors_found">%1s sensori rilevati</string>
+    <string name="sensor_light">Luminosità</string>
+    <string name="sensor_noise">Acustica</string>
+    <string name="sensor_reading">%1s rileva:</string>
+    <string name="optimal_range">Ottimale: %1s %2s</string>
+    <string name="optimal_label">Ottimale</string>
+    <string name="attention_label">Attenzione</string>
+    <string name="critical_label">Critico</string>
+</resources>
